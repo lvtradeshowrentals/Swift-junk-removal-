@@ -239,9 +239,17 @@ html.anim .wo-shell.in { clip-path: inset(-60px -60px -90px -60px); transform: n
   .tiles { grid-template-columns: 1fr 1fr; }
   .who-grid { grid-template-columns: 1fr; }
   .wo-head { padding: 18px 20px 20px; }
-  .wo-body { padding: 22px 20px 24px; }
+  .wo-body { padding: 26px 20px 26px; }
   .wo-stub { padding: 20px 20px 18px; }
-  .wo-meta { gap: 14px; }
+  /* the header carries only what a phone has room for: the mark, one line of title and the order number */
+  .wo-head { gap: 12px; padding: 20px 20px 18px; }
+  .wo-id { gap: 12px; min-width: 0; }
+  .wo-id b { white-space: nowrap; font-size: 18px; }
+  .wo-id span { display: none; }
+  .wo-meta { gap: 0; }
+  .wo-meta div:last-child { display: none; }
+  .wo-meta dd { font-size: 12.5px; }
+  .wo-steps { margin-bottom: 28px; }
   .wo-steps button span { display: none; }
   .wo-steps li.on button span { display: inline; }
   .wo-steps li:not(:last-child)::after { margin: 0 8px; }
@@ -250,7 +258,7 @@ html.anim .wo-shell.in { clip-path: inset(-60px -60px -90px -60px); transform: n
   .wo-actions .btn-primary { flex: 1; }
   .wo-done { padding: 30px 22px 28px; }
 }
-@media (max-width: 400px) { .wo-meta div:last-child { display: none; } .tile small { display: none; } }
+@media (max-width: 400px) { .tile small { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   html.anim [data-reveal], html.anim .wo-shell { opacity: 1 !important; transform: none !important; clip-path: none !important; transition: none !important; }
   .pane, .tile, .ld-in { transition: none; }
