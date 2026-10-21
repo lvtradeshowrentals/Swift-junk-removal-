@@ -315,7 +315,7 @@
     const rigX = (lx) => L.truckLeft + lx * ts;
     const nearY = (k) => gp + (10 + 3 * k) * ts;
     const nearS = (k) => ts * SW.depth(478 + 10 + 3 * k);
-    const WALK = 270, CARRY = 255, JOG = 380, JOGK = 1.7, DEP = .1, T_PICK = .55, T_HOIST = .92;
+    const WALK = 270, CARRY = 255, JOG = 470, JOGK = 1.7, DEP = .1, T_PICK = .55, T_HOIST = .92;
     const cmd = (a, b) => Math.hypot(b.x - a.x, (b.y - a.y) * 2) / (PXCM * (a.s + b.s) / 2);
     const segs = [[], [], []];
     /* they arrive from the left edge, already beside the pile: no time spent walking across the lawn */
@@ -423,28 +423,19 @@
     });
     const T_load = Math.max(clock[0], clock[1], clock[2]) + .1;
 
-    /* securing: two throw the net from the rear, two kneel to the straps, one swings the gate shut, then everyone climbs in */
-    let T_secure = 3, S = T_load;
-    const NET0 = S + .15, NET1 = S + .5, STR0 = S + .55, RAMP0 = S + .55, RAMP1 = S + .85;
+    /* closing up: one person swings the gate shut, the others head straight for the cab, then everyone climbs in */
+    let T_secure = 1, S = T_load;
+    const RAMP0 = S + .05, RAMP1 = S + .3;
     const rearA = { x: rigX(TR.G.BOX_L - 62), y: nearY(0), s: nearS(0) };
-    const rearB = { x: rigX(TR.G.BOX_L - 30), y: nearY(1), s: nearS(1) };
-    const strap1 = { x: rigX(TR.G.BOX_L + 150) - 10 * PXCM * nearS(1), y: nearY(2), s: nearS(2) };
-    const strap2 = { x: rigX(TR.G.BOX_L + 390) - 10 * PXCM * nearS(2), y: nearY(1), s: nearS(1) };
     const door = (c) => ({ x: rigX(305 + c * 66), y: nearY(c), s: nearS(c) });
     const goTo = (c, P, tArrive, o) => {
       const d = cmd(at[c], P) / JOG, start = Math.max(clock[c], tArrive - d);
       if (start > clock[c] + .05) idle(c, at[c], start - clock[c], PI - .1);
       walk(c, at[c], P, d, Object.assign({ stride: JOGK, even: true }, o)); at[c] = P;
     };
-    const holdTo = (c, tUntil, yaw) => { if (tUntil > clock[c] + .05) idle(c, at[c], tUntil - clock[c], yaw); };
-    const throwPose = (u) => ({ carry: true, gy: lerp(70, 176, smooth(0, .3, u)) - 40 * smooth(.62, 1, u), gf: lerp(22, 46, smooth(.3, .62, u)), gl: 18, gm: 1, lean: -4, headPitch: 10, effort: .6 });
-    const kneel = (u) => ({ b: .82 * smooth(0, .46, u) * (1 - smooth(.54, 1, u)), carry: true, gy: 34, gf: 24, gl: 14, gm: .9, headPitch: 10, effort: .5 });
     const push = (u) => ({ carry: true, gy: lerp(60, 96, smooth(.2, .8, u)), gf: 30, gl: 16, gm: 1, lean: 4 * Math.sin(PI * u), effort: .5 });
-    goTo(0, rearA, NET0 - .2); holdTo(0, NET0, .2); idle(0, rearA, .45, .2, throwPose); holdTo(0, RAMP0 - .1, .1); idle(0, rearA, .4, .1, push);
-    goTo(1, rearB, NET0 - .2); holdTo(1, NET0, .26); idle(1, rearB, .45, .26, throwPose);
-    goTo(2, strap1, STR0 - .1); idle(2, strap1, .42, -.9, kneel);
-    goTo(1, strap2, STR0 + .1); idle(1, strap2, .4, -.9, kneel);
-    /* everyone jogs back to the cab at a real jogging stride, taking the time it takes; the securing part is as long as the last person needs */
+    goTo(0, rearA, RAMP0 - .1); idle(0, rearA, .22, .1, push);
+    /* everyone jogs back to the cab at a real jogging stride; the closing part is as long as the last person needs */
     [0, 1, 2].forEach((c) => {
       const P = door(c), d = cmd(at[c], P) / JOG;
       walk(c, at[c], P, d, { vis: (u) => 1 - smooth(.78, 1, u), stride: JOGK, even: true });
@@ -452,7 +443,7 @@
     });
     T_secure = Math.max(clock[0], clock[1], clock[2]) - S + .05;
 
-    plan = { segs, info, T_load, T_secure, NET0, NET1, STR0, RAMP0, RAMP1, landed: info.map((x) => x.tLand), cursor: [0, 0, 0] };
+    plan = { segs, info, T_load, T_secure, RAMP0, RAMP1, landed: info.map((x) => x.tLand), cursor: [0, 0, 0] };
   }
 
   function crewAt(c, tv) {
@@ -484,10 +475,7 @@
     TR.LOAD.forEach((it, i) => { if (it.pre) vis2(slotEls[i], 'sl' + i, 'visible'); });
     const clutter = (1 - .9 * smooth(0, 1, landed / n)).toFixed(2);
     setIf(null, 'gc', clutter, (e, v) => { ['garageClutterA', 'garageClutterB', 'garageClutterAN', 'garageClutterBN'].forEach((id) => { const g = $(id); if (g) g.setAttribute('opacity', v); }); });
-    /* net, straps and gate */
-    const netU = smooth(plan.NET0 + .2, plan.NET1, tv);
-    setIf(els.netRect, 'net', netU.toFixed(3), (e, v) => e.setAttribute('width', f(v * (TR.G.BOX_R - TR.G.BOX_L + 40))));
-    setIf(els.straps, 'straps', smooth(plan.STR0, plan.STR0 + .9, tv).toFixed(2), (e, v) => e.setAttribute('opacity', v));
+    /* the gate */
     const ramp = 135 * smooth(plan.RAMP0, plan.RAMP1, tv);
     setIf(els.ramp, 'ramp', ramp.toFixed(1), (e, v) => e.setAttribute('transform', `rotate(${v} ${TR.G.BOX_L} ${TR.G.DECK + 6})`));
     /* the suspension: it settles with the weight and rings a little each time a heavy piece lands */
