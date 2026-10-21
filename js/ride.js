@@ -23,7 +23,9 @@
   const BG_LAYERS = [['lyCloudsA', 'cloud'], ['lyCloudsB', 'cloud'], ['lyMtn', 'mtn'], ['lySky', 'sky'], ['lyStrip', 'strip'], ['lyFoot', 'foot'], ['lySub', 'sub']];
   const PAN_PAR = { cloud: .01, mtn: .02, sky: .04, strip: .05, foot: .08, sub: .12 };
   /* how long each part of the scroll is, in screens */
-  const PARTS = [['hold', .26], ['load', .34], ['secure', .20], ['drive', .30], ['finale', .26]];
+  /* the hero plays by itself on a clock: these are real seconds (load and secure take the length of the crew's plan) */
+  const LEAD = .75, DRIVE = .9, TAIL = .25;
+  let PARTS = [];
 
   let stage, track, reduce = false;
   let L = null, parts = {}, total = 0, keys = [], plan = null;
@@ -49,18 +51,20 @@
     const truckLeft = wide ? .5 * W : .5 * W;
     const nose = truckLeft + 722 * ts;
     const rampTip = truckLeft + TR.G.RAMP_X * ts;
-    const pileCx = rampTip - 50 * S0;
+    const pileCx = rampTip - 15 * S0;
     const pileLeft = pileCx - 300 * S0, pileLeftC = pileCx - 410 * S0;
     const cam0 = HERO.pileX - pileCx / S0;
     const camFinal = HERO.finaleX - (truckLeft + 361 * ts) / S0;
-    const zW = wide ? clamp(.96 * W / (nose - pileLeft), .4, 1) : .42;
+    /* wide frame: on a desktop the whole rig; on a phone a tight shot of the pickup with just the front of the trailer, so the truck stays big */
+    const zW = wide ? clamp(.96 * W / (nose - pileLeft), .4, 1) : .8;
     const txW = .978 * W - zW * nose;
-    const txC = wide ? (.30 * W - rampTip) : (.04 * W - pileLeftC);
+    const zC = wide ? 1 : zW;                      /* a phone holds one framing for the whole job: no zoom, one pan in and one out */
+    const txC = wide ? (.30 * W - rampTip) : (.03 * W - zC * pileLeftC);
     const txMin = .975 * W - (truckLeft + TR.G.BOX_R * ts);   /* furthest the follow-cam may pan toward the cab */
     const D = (camFinal - cam0) * S0;
     L = {
       W, H, S0, ts, wide, cam0, truckLeft, B, landscape, X_MIN: HERO.X_MIN, camNow: cam0, camFinal, pileCx,
-      zW, txW, txC, txMin, k: zW, noseScreen: txW + zW * nose, truckLeftNow: truckLeft,
+      zW, zC, txW, txC, txMin, k: zW, noseScreen: txW + zW * nose, truckLeftNow: truckLeft,
       groundPx: H - 42 * S0, bgShift: landscape ? -44 * B : 0,
     };
     L.heroLeft = truckLeft; L.rideLeft = truckLeft;
@@ -71,6 +75,8 @@
 
   /* ======================= timeline ======================= */
   function buildTimeline() {
+    /* the crew starts moving at t = 0, under the headline fade and the camera move: 'load' is what is left of the work after the lead */
+    PARTS = [['hold', LEAD], ['load', Math.max(.2, plan.T_load - LEAD)], ['secure', plan.T_secure], ['drive', DRIVE], ['finale', TAIL]];
     parts = {}; total = PARTS.reduce((s, p) => s + p[1], 0);
     let acc = 0; PARTS.forEach(([n, len]) => { parts[n] = { n, len, p0: acc / total, p1: (acc + len) / total }; acc += len; });
     const mid = (n, k) => parts[n].p0 + (parts[n].p1 - parts[n].p0) * k;
@@ -90,30 +96,22 @@
     return 1;
   }
   /* the camera: 0 = wide, 1 = close. It pushes in as the crew steps out and pulls back as the rig prepares to leave. */
+  /* smootherstep: zero velocity AND zero acceleration at both ends, so a camera move starts and stops without a visible kick */
+  const sm5 = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * t * (t * (6 * t - 15) + 10); };
   function closeAt(p) {
     const lo = parts.load, se = parts.secure, dr = parts.drive;
-    return smooth(lo.p0 - .01, lo.p0 + (lo.p1 - lo.p0) * .22, p) * (1 - smooth(se.p0 + (se.p1 - se.p0) * .55, dr.p0 + (dr.p1 - dr.p0) * .35, p));
+    /* the push-in/pan finishes just as the crew starts lifting; the pull-back is one slow move across the end of the securing and the drive-off */
+    return sm5(.0, parts.hold.p1 + (lo.p1 - lo.p0) * .1, p) * (1 - sm5(se.p0 + (se.p1 - se.p0) * .45, dr.p0 + (dr.p1 - dr.p0) * .55, p));
   }
-  /* on a phone the close frame follows the crew along the pile and the trailer instead of holding still */
-  function followTx(tv) {
-    let sum = 0, n = 0;
-    [-1.5, -.75, 0, .75, 1.5].forEach((d) => crews.forEach((_, c) => { const st = crewAt(c, tv + d); if (st) { sum += st.x; n++; } }));
-    if (!n) return L.txC;
-    return clamp(.5 * L.W - sum / n, L.txMin, L.txC);
-  }
-  let followSm = null;
-  function frameAt(p, tv) {
+  function frameAt(p) {
     const m = closeAt(p);
-    let txc = L.txC;
-    if (!L.wide && tv > 0) { const t = followTx(tv); followSm = followSm === null ? t : followSm + (t - followSm) * .22; txc = followSm; }
-    return { m, z: lerp(L.zW, 1, m), tx: lerp(L.txW, txc, m) };
+    return { m, z: lerp(L.zW, L.zC, m), tx: lerp(L.txW, L.txC, m) };
   }
   /* virtual seconds on the crew's clock: 0 when the load begins, T_load when the last piece is in, then the securing */
   function tvAt(p) {
     const lo = parts.load, se = parts.secure;
-    if (p < lo.p0) return -1;
-    if (p <= lo.p1) return (p - lo.p0) / (lo.p1 - lo.p0) * plan.T_load;
-    return plan.T_load + Math.min(1, (p - se.p0) / (se.p1 - se.p0)) * plan.T_secure + Math.max(0, p - se.p1) * 40;
+    if (p <= lo.p1) return p * total;                       /* parts are real seconds from t = 0, so this is just the clock */
+    return plan.T_load + (p - se.p0) * total;
   }
 
   /* ======================= building the scene ======================= */
@@ -233,7 +231,7 @@
     trackTop = track.offsetTop; trackH = track.offsetHeight;
   }
   function setTrackHeight() {
-    track.style.height = reduce ? 'auto' : (stage.clientHeight * (1 + total)) + 'px';
+    track.style.height = '';
     trackTop = track.offsetTop; trackH = track.offsetHeight;
   }
 
@@ -310,26 +308,26 @@
     const rigX = (lx) => L.truckLeft + lx * ts;
     const nearY = (k) => gp + (10 + 3 * k) * ts;
     const nearS = (k) => ts * SW.depth(478 + 10 + 3 * k);
-    const WALK = 205, CARRY = 165, JOG = 240, DEP = .35, T_PICK = .8, T_HOIST = 1.3;
+    const WALK = 270, CARRY = 255, JOG = 380, JOGK = 1.7, DEP = .1, T_PICK = .32, T_HOIST = .58;
     const cmd = (a, b) => Math.hypot(b.x - a.x, (b.y - a.y) * 2) / (PXCM * (a.s + b.s) / 2);
     const segs = [[], [], []];
-    /* they come out of the house's front door: a move-out, and the pile is right there */
-    const doorX = (HERO.houseX + 300 + 230 - L.cam0) * S0, doorY = H - (520 - 376) * S0, doorS = SW.depth(376) * ts;
-    const at = [0, 1, 2].map((c) => ({ x: doorX + (c - 1) * 22 * ts, y: doorY + c * 1.5 * ts, s: doorS }));
-    const clock = [0, .45, .9];
+    /* they arrive from the left edge, already beside the pile: no time spent walking across the lawn */
+    const doorY = H - (520 - 392) * S0, doorS = SW.depth(392) * ts, pileX0 = (HERO.pileX - L.cam0) * S0;
+    const at = [0, 1, 2].map((c) => ({ x: pileX0 - (125 + c * 26) * S0, y: doorY + c * 1.5 * ts, s: doorS }));
+    const clock = [0, .08, .16];
     const info = [], entered = [false, false, false];
     const landOf = [];
 
     /* generic segments for one person */
     const walk = (c, P0, P1, dur, o) => {
       o = o || {};
-      const left = P1.x < P0.x, th0 = (o.th || 0) + c * 1.3, back = !!o.back, fade = !entered[c]; entered[c] = true;
+      const left = P1.x < P0.x, th0 = (o.th || 0) + c * 1.3, back = !!o.back, fade = !entered[c], sk = o.stride || 1; entered[c] = true;
       const seg = { t0: clock[c], t1: clock[c] + dur, ev(u) {
-        const e = easeInOut(u), x = lerp(P0.x, P1.x, e), y = lerp(P0.y, P1.y, e), s = lerp(P0.s, P1.s, u);
+        const e = o.even ? lerp(u, u * u * (3 - 2 * u), .45) : u * u * (3 - 2 * u), x = lerp(P0.x, P1.x, e), y = lerp(P0.y, P1.y, e), s = lerp(P0.s, P1.s, u);
         const w = { x, y, s }, d = depthAngle(P1.y - P0.y, P1.x - P0.x);
         const yaw = o.yaw != null ? o.yaw : (left ? PI - d : d);
         const st = { x, y, s, vis: o.vis ? o.vis(u) : fade ? clamp(u * 7, 0, 1) : 1, carry: o.carry || '', pair: o.pair != null ? o.pair : -1, rot: o.rot || 0, sc: o.sc || 1,
-          o: { yaw, theta: (back ? -1 : 1) * SW.crew.phase(cmd(P0, w)) + th0, amp: Math.pow(Math.sin(PI * u), .55), effort: o.effort || 0 } };
+          o: { yaw, theta: (back ? -1 : 1) * SW.crew.phase(cmd(P0, w), sk) + th0, amp: Math.pow(Math.sin(PI * u), .55), effort: o.effort || 0, stride: sk } };
         if (o.carry || o.pair != null && o.pair >= 0) Object.assign(st.o, { carry: true, gy: o.gy, gf: GRIP, gl: 15, gm: 1, lean: o.pair >= 0 ? -3 : -8 });
         return st;
       } };
@@ -413,11 +411,11 @@
       });
       landOf[i] = tHoist + LAND * T_HOIST;
     });
-    const T_load = Math.max(clock[0], clock[1], clock[2]) + .3;
+    const T_load = Math.max(clock[0], clock[1], clock[2]) + .1;
 
     /* securing: two throw the net from the rear, two kneel to the straps, one swings the gate shut, then everyone climbs in */
-    const T_secure = 6.4, S = T_load;
-    const NET0 = S + 1.2, NET1 = S + 2.6, STR0 = S + 2.8, RAMP0 = S + 3.0, RAMP1 = S + 3.9;
+    let T_secure = 3, S = T_load;
+    const NET0 = S + .15, NET1 = S + .5, STR0 = S + .55, RAMP0 = S + .55, RAMP1 = S + .85;
     const rearA = { x: rigX(TR.G.BOX_L - 62), y: nearY(0), s: nearS(0) };
     const rearB = { x: rigX(TR.G.BOX_L - 30), y: nearY(1), s: nearS(1) };
     const strap1 = { x: rigX(TR.G.BOX_L + 150) - 10 * PXCM * nearS(1), y: nearY(2), s: nearS(2) };
@@ -426,22 +424,23 @@
     const goTo = (c, P, tArrive, o) => {
       const d = cmd(at[c], P) / JOG, start = Math.max(clock[c], tArrive - d);
       if (start > clock[c] + .05) idle(c, at[c], start - clock[c], PI - .1);
-      walk(c, at[c], P, d, o); at[c] = P;
+      walk(c, at[c], P, d, Object.assign({ stride: JOGK, even: true }, o)); at[c] = P;
     };
     const holdTo = (c, tUntil, yaw) => { if (tUntil > clock[c] + .05) idle(c, at[c], tUntil - clock[c], yaw); };
     const throwPose = (u) => ({ carry: true, gy: lerp(70, 176, smooth(0, .3, u)) - 40 * smooth(.62, 1, u), gf: lerp(22, 46, smooth(.3, .62, u)), gl: 18, gm: 1, lean: -4, headPitch: 10, effort: .6 });
     const kneel = (u) => ({ b: smooth(0, .2, u) * (1 - smooth(.8, 1, u)), carry: true, gy: 34, gf: 24, gl: 14, gm: .9, headPitch: 10, effort: .5 });
     const push = (u) => ({ carry: true, gy: lerp(60, 96, smooth(.2, .8, u)), gf: 30, gl: 16, gm: 1, lean: 4 * Math.sin(PI * u), effort: .5 });
-    goTo(0, rearA, NET0 - .2); holdTo(0, NET0, .2); idle(0, rearA, 1.5, .2, throwPose); holdTo(0, RAMP0 - .3, .1); idle(0, rearA, 1.2, .1, push);
-    goTo(1, rearB, NET0 - .2); holdTo(1, NET0, .26); idle(1, rearB, 1.5, .26, throwPose);
-    goTo(2, strap1, STR0 - .4); idle(2, strap1, 1.4, -.9, kneel);
-    goTo(1, strap2, STR0 + .9); idle(1, strap2, 1.4, -.9, kneel);
+    goTo(0, rearA, NET0 - .2); holdTo(0, NET0, .2); idle(0, rearA, .45, .2, throwPose); holdTo(0, RAMP0 - .1, .1); idle(0, rearA, .4, .1, push);
+    goTo(1, rearB, NET0 - .2); holdTo(1, NET0, .26); idle(1, rearB, .45, .26, throwPose);
+    goTo(2, strap1, STR0 - .1); idle(2, strap1, .42, -.9, kneel);
+    goTo(1, strap2, STR0 + .1); idle(1, strap2, .4, -.9, kneel);
+    /* everyone jogs back to the cab at a real jogging stride, taking the time it takes; the securing part is as long as the last person needs */
     [0, 1, 2].forEach((c) => {
       const P = door(c), d = cmd(at[c], P) / JOG;
-      const room = (S + T_secure) - clock[c];
-      walk(c, at[c], P, Math.min(d, Math.max(1.2, room - .1)), { vis: (u) => 1 - smooth(.78, 1, u) });
+      walk(c, at[c], P, d, { vis: (u) => 1 - smooth(.78, 1, u), stride: JOGK, even: true });
       at[c] = P;
     });
+    T_secure = Math.max(clock[0], clock[1], clock[2]) - S + .05;
 
     plan = { segs, info, T_load, T_secure, NET0, NET1, STR0, RAMP0, RAMP1, landed: info.map((x) => x.tLand), cursor: [0, 0, 0] };
   }
@@ -483,14 +482,14 @@
     setIf(els.ramp, 'ramp', ramp.toFixed(1), (e, v) => e.setAttribute('transform', `rotate(${v} ${TR.G.BOX_L} ${TR.G.DECK + 6})`));
     /* the suspension: it settles with the weight and rings a little each time a heavy piece lands */
     let sag = 3.2 * clamp(landed / n, 0, 1) * L.ts / .8;
-    info.forEach((x, i) => { const a = tv - x.tLand; if (a > 0 && a < 2.4) sag += (i < 4 ? 2.6 : 1.3) * Math.exp(-a * 3.4) * Math.sin(a * 15) * L.ts / .8; });
+    info.forEach((x) => { const a = tv - x.tLand; if (a > 0 && a < 1.2) sag += 1.1 * (a / .16) * Math.exp(1 - a / .16) * L.ts / .8; });
     return sag;
   }
 
   /* ======================= per-frame render ======================= */
   function render(p, dt) {
     const { S0, ts, B } = L;
-    const tv = tvAt(p), cam = camAt(p), ph = phaseAt(p), fr = frameAt(p, tv);
+    const tv = tvAt(p), cam = camAt(p), ph = phaseAt(p), fr = frameAt(p);
     L.camNow = cam;
     const prog = clamp((cam - L.cam0) / (L.camFinal - L.cam0), 0, 1);
     L.truckLeftNow = L.truckLeft + splashOff;
@@ -586,44 +585,91 @@
   /* ======================= hero copy, finale card ======================= */
   let cards = [];
   function updateUI(p) {
-    const hold = parts.hold, load = parts.load, fin = parts.finale;
-    const heroO = 1 - smooth(hold.p0 + (hold.p1 - hold.p0) * .55, hold.p1 + (load.p1 - load.p0) * .06, p);
+    const hold = parts.hold, fin = parts.finale;
+    const heroO = 1 - smooth(0, hold.p1 * .9, p);
     setIf($('heroCopy'), 'hero', heroO.toFixed(3), (e, v) => { e.style.setProperty('--hero', v); e.style.transform = `translate3d(0,${f(-(1 - v) * 26)}px,0)`; e.style.pointerEvents = v < .1 ? 'none' : ''; });
-    setIf(stage, 'riding', heroO < .5 ? 1 : 0, (e, v) => e.classList.toggle('riding', !!v));
+    setIf(stage, 'riding', heroO < .98 ? 1 : 0, (e, v) => e.classList.toggle('riding', !!v));
     setIf(stage, 'ended', p > .985 ? 1 : 0, (e, v) => e.classList.toggle('ended', !!v));
     setIf($('vig'), 'vig', heroO.toFixed(3), (e, v) => { e.style.opacity = v; });
-    const on = p > fin.p0 + (fin.p1 - fin.p0) * .12 ? 1 : 0;
+    const on = p > fin.p0 + (fin.p1 - fin.p0) * .1 ? 1 : 0;
     setIf(stage, 'card', on, (e, v) => cards.forEach((c) => { c.classList.toggle('on', !!v); c.setAttribute('aria-hidden', v ? 'false' : 'true'); c.inert = !v; }));
   }
 
-  /* ======================= scroll plumbing ======================= */
-  function targetP() {
-    const y = window.pageYOffset || document.documentElement.scrollTop || 0;
-    return clamp((y - trackTop) / Math.max(1, trackH - stage.clientHeight), 0, 1);
-  }
+  /* ======================= playback =======================
+     idle    the hero rests on its headline (page scrolling is how you start it)
+     playing the scene runs on a clock; scrolling is held until it ends
+     done    the end frame; the page scrolls normally                                */
+  let mode = 'idle', t0 = 0, arm = () => {}, disarm = () => {};
+  const playMs = () => total * 1000;
   function tick(now) {
     const dt = Math.min(.05, Math.max(0, (now - lastT) / 1000) || .016); lastT = now;
-    const tgt = targetP();
-    ps += (tgt - ps) * (1 - Math.exp(-dt / .1));
-    if (Math.abs(tgt - ps) < 2e-5) ps = tgt;
+    if (mode === 'playing') {
+      ps = clamp((now - t0) / playMs(), 0, 1);
+      render(ps, dt);
+      if (ps >= 1) { finish(); } else { requestAnimationFrame(tick); return; }
+    }
     render(ps, dt);
-    if (ps !== tgt || Math.abs(camVel) > 3) { running = true; requestAnimationFrame(tick); } else { running = false; camVel = 0; }
+    if (Math.abs(camVel) > 3) { requestAnimationFrame(tick); } else { running = false; camVel = 0; }
   }
   function kick() { if (!running) { running = true; lastT = performance.now(); requestAnimationFrame(tick); } }
-
-  R.go = function (i) { window.scrollTo({ top: trackTop + (i >= 5 ? .985 : .02) * Math.max(1, trackH - stage.clientHeight), behavior: 'smooth' }); };
+  function setMode(m) { mode = m; html.setAttribute('data-hero', m); }
+  function start() {
+    if (mode !== 'idle' || reduce) return;
+    if (SW.splash && SW.splash.active) return;
+    setMode('playing'); t0 = performance.now(); setCue();
+    if (window.pageYOffset) window.scrollTo(0, 0);
+    kick();
+  }
+  function finish() {
+    if (mode === 'done') return;
+    ps = 1; setMode('done'); disarm(); render(1, 0); setCue();
+  }
+  function replay() { ps = 0; followSmReset(); setMode('idle'); arm(); render(0, 0); start(); }
+  function followSmReset() { followSm = null; }
+  function setCue() {
+    const c = $('cueText'); if (!c) return;
+    c.textContent = mode === 'done' ? 'Keep scrolling' : 'Scroll to watch';
+  }
+  R.go = function () { finish(); };
   R.setSplashOffset = (off) => { splashOff = off; if (!running && L) render(ps, 0); };
+
+  /* the first scroll gesture starts the show; while it plays the page is held in place (no scroll-jacking beyond ~6 seconds, and Skip ends it) */
+  function wireIntent() {
+    const block = (e) => { if (mode === 'playing' && e.cancelable) e.preventDefault(); };
+    let ty = null;
+    const onWheel = (e) => { if (mode === 'idle' && e.deltaY > 0 && !(SW.splash && SW.splash.active)) { e.preventDefault(); start(); } else block(e); };
+    const onTouchStart = (e) => { ty = e.touches[0].clientY; };
+    const onTouchMove = (e) => {
+      if (mode === 'idle' && ty !== null && ty - e.touches[0].clientY > 10 && !(SW.splash && SW.splash.active)) { if (e.cancelable) e.preventDefault(); start(); } else block(e);
+    };
+    /* the non-passive listeners only exist while the hero is waiting or playing, so normal scrolling stays on the fast path afterwards */
+    arm = () => { window.addEventListener('wheel', onWheel, { passive: false }); window.addEventListener('touchmove', onTouchMove, { passive: false }); };
+    disarm = () => { window.removeEventListener('wheel', onWheel); window.removeEventListener('touchmove', onTouchMove); };
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('keydown', (e) => {
+      if (/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test((e.target && e.target.tagName) || '')) return;
+      const down = ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'].indexOf(e.key) > -1;
+      if (mode === 'idle' && down && !(SW.splash && SW.splash.active)) { e.preventDefault(); start(); }
+      else if (mode === 'playing' && (down || e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'Home')) e.preventDefault();
+    });
+    /* a scrollbar drag or a jump link can still move the page; hold it at the top while the scene plays */
+    window.addEventListener('scroll', () => { if (mode === 'playing' && window.pageYOffset > 0) window.scrollTo(0, 0); if (mode === 'idle' && window.pageYOffset > 24 && window.pageYOffset < stage.clientHeight) start(); }, { passive: true });
+    if (mode === 'idle') arm();
+    const skip = $('skip');
+    skip.addEventListener('click', (e) => { if (mode === 'playing') { e.preventDefault(); finish(); } });
+    const rp = $('replay'); if (rp) rp.addEventListener('click', replay);
+  }
 
   /* ======================= boot ======================= */
   function setup(first) {
-    computeLayout(); buildTimeline();
+    computeLayout();
     if (first) {
       const defs = SW.defs() + SW.truck.defs() + SW.trailer.defs() + '<linearGradient id="midHaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb67c" stop-opacity="0"/><stop offset="1" stop-color="#ff9d68" stop-opacity=".22"/></linearGradient>';
       SW.night.register(defs);
       $('spriteDefs').innerHTML = defs + SW.night.defs(defs) + SW.itemDefs() + SW.itemDefsNight() + '<filter id="rigGrade" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feColorMatrix id="rigGradeM" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>';
       buildWorld(); buildRig(); buildActors();
     }
-    planCrew();
+    planCrew(); buildTimeline();
     buildBackdrop();
     applyLayout(); setTrackHeight();
   }
@@ -635,34 +681,33 @@
     setup(true);
     cards = Array.from(document.querySelectorAll('.ticket'));
     cards.forEach((c) => { c.inert = true; c.setAttribute('aria-hidden', 'true'); });
-    /* the nav is clear over the scene and turns solid once the page scrolls up past the ride */
+    /* the nav is clear over the hero and turns solid once the page scrolls away from it */
     const nav = document.querySelector('.nav');
-    const navCheck = () => {
-      const y = window.pageYOffset || 0, from = reduce ? stage.clientHeight * .7 : trackTop + trackH - stage.clientHeight - 24;
-      nav.classList.toggle('solid', y > from);
-    };
+    const navCheck = () => { nav.classList.toggle('solid', (window.pageYOffset || 0) > stage.clientHeight * .7); };
     window.addEventListener('scroll', navCheck, { passive: true }); window.addEventListener('resize', navCheck); navCheck();
-    ps = reduce ? 0 : targetP(); camPrev = camAt(ps);
-    render(ps, 0);
-    if (reduce) return;
-    /* below the ride nothing here moves, so scrolling the rest of the page costs the ride nothing */
-    window.addEventListener('scroll', () => { if ((window.pageYOffset || 0) < trackTop + trackH + 160) kick(); }, { passive: true });
-    let rt = 0, lw = innerWidth, lh = innerHeight, pBefore = null;
+    camPrev = camAt(0);
+    /* arriving partway down the page (a reload, an anchor link) shows the finished scene and never locks the page */
+    const deep = (window.pageYOffset || 0) > stage.clientHeight * .5;
+    if (reduce) { setMode('idle'); ps = 0; render(0, 0); return; }
+    ps = deep ? 1 : 0; setMode(deep ? 'done' : 'idle'); render(ps, 0); setCue();
+    wireIntent();
+    let rt = 0, lw = innerWidth, lh = innerHeight;
     window.addEventListener('resize', () => {
-      if (pBefore === null) pBefore = ps;
       clearTimeout(rt);
       rt = setTimeout(() => {
-        if (Math.abs(innerWidth - lw) < 2 && Math.abs(innerHeight - lh) < 140) { pBefore = null; applyLayout(); setTrackHeight(); render(targetP(), 0); return; }
-        lw = innerWidth; lh = innerHeight;
-        const keep = pBefore === null ? ps : pBefore; pBefore = null; cache = {};
+        if (Math.abs(innerWidth - lw) < 2 && Math.abs(innerHeight - lh) < 140) { applyLayout(); setTrackHeight(); render(ps, 0); return; }
+        lw = innerWidth; lh = innerHeight; cache = {}; followSm = null;
+        const t = mode === 'playing' ? (performance.now() - t0) : 0;
         setup(false);
-        if (keep > .001 && keep < .999) window.scrollTo({ top: trackTop + keep * Math.max(1, trackH - stage.clientHeight), behavior: 'instant' });
-        ps = keep; render(ps, 0); kick();
+        if (mode === 'playing') t0 = performance.now() - ps * playMs();
+        render(ps, 0); void t;
         if (SW.splash && SW.splash.relayout) SW.splash.relayout();
       }, 180);
     });
     kick();
   };
   R.state = () => ({ p: ps, cam: L && L.camNow, parts, total, L, plan });
-  R.setP = (p) => { window.scrollTo({ top: trackTop + p * Math.max(1, trackH - stage.clientHeight), behavior: 'instant' }); ps = p; render(p, 0); };
+  R.setP = (p) => { setMode('manual'); ps = p; render(p, 0); };   /* dev: pose the scene at a fixed point */
+  R.mode = () => mode;
+  R.start = start;
 })(window.SW);

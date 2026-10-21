@@ -38,6 +38,12 @@
     return d;
   }
 
+  /* what the road depends on: the route's size and where each step sits. If none of it moved, there is nothing to redraw. */
+  function roadSig() {
+    const route = $('route'), rb = route.getBoundingClientRect(), wide = window.innerWidth > 1000;
+    return [Math.round(rb.width), Math.round(rb.height), wide ? 1 : 0].concat(Array.from(route.querySelectorAll('.step')).map((s) => { const e = wide ? s : s.querySelector('.step-copy h3'), r = e.getBoundingClientRect(); return Math.round(r.top - rb.top + r.height / 2); })).join(',');
+  }
+
   function buildRoad() {
     const route = $('route'), svg = $('routeRoad');
     const rb = route.getBoundingClientRect(), W = rb.width, H = rb.height;
@@ -77,6 +83,7 @@
     for (let l = 0; l <= L; l += 3) { const p = lit.getPointAtLength(l); R.ys.push(p.y); R.lens.push(l); R.pts.push(p); }
     R.W = W; R.H = H; R.steps = steps; R.stopY = stops.map((p) => p[1]);
     R.stopLen = R.stopY.map(lenAtY);
+    R.sig = roadSig();
     R.ready = true;
   }
   function lenAtY(y) {
@@ -260,7 +267,7 @@
       const q = () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; update(); }); } };
       window.addEventListener('scroll', q, { passive: true });
       let rt = 0;
-      const rebuild = () => { clearTimeout(rt); rt = setTimeout(() => { buildRoad(); lastLen = -1; update(true); R.steps.forEach((s, i) => { if (R.stops[i]) R.stops[i].classList.toggle('on', s.classList.contains('on')); }); }, 150); };
+      const rebuild = () => { clearTimeout(rt); rt = setTimeout(() => { if (R.sig === roadSig()) return; buildRoad(); lastLen = -1; update(true); R.steps.forEach((s, i) => { if (R.stops[i]) R.stops[i].classList.toggle('on', s.classList.contains('on')); }); }, 150); };
       window.addEventListener('resize', rebuild);
       if ('ResizeObserver' in window) new ResizeObserver(rebuild).observe(route);
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(rebuild);

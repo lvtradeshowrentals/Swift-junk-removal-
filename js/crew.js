@@ -42,12 +42,14 @@
   const liftOf = (c) => (c < .6 ? 0 : Math.pow(Math.sin(Math.PI * (c - .6) / .4), 1.15) * 10.5);
 
   /* distance walked (cm) -> gait phase (radians) */
-  SW.crew = { phase: (distCm) => TAU * distCm / STRIDE, STRIDE };
+  /* gait phase from distance walked; a jog uses a longer stride (k) so the legs reach further instead of just turning faster */
+  SW.crew = { phase: (distCm, k) => TAU * distCm / (STRIDE * (k || 1)), STRIDE };
 
   SW.crew.solve = function (o) {
     const amp = clamp(o.amp || 0, 0, 1), b = clamp(o.b || 0, 0, 1), yaw = o.yaw, th = o.theta || 0;
     const pb = basis(yaw, 0);
-    const S = STEP * amp, W = lerp(9.4, o.carry ? 11.6 : 9.4, 1) + 6.4 * b;
+    const sk = clamp(o.stride || 1, 1, 1.7);
+    const S = STEP * amp * sk, W = lerp(9.4, o.carry ? 11.6 : 9.4, 1) + 6.4 * b;
     const feet = [], fn = [];
     for (let i = 0; i < 2; i++) {
       const c = fract(th / TAU + i * .5), nf = amp > .02 ? fwdOf(c) : 0, p = amp > .02 ? pitchOf(c) * R * Math.min(1, amp * 1.4) : 0;
@@ -62,7 +64,7 @@
       if (amp > .02 && c >= .6) continue;
       py = Math.max(py, f.y + Math.sqrt(Math.max(1200, LEG * LEG - f.fwd * f.fwd - Math.pow(Math.abs(f.lat) - 9.2, 2))));
     }
-    py = clamp(py || 93, 84, 95);
+    py = clamp(py || 93, 84 - (sk - 1) * 26, 95);    /* a long stride is a lower, driving posture */
     py = lerp(py, 56, b);
     const sway = amp * 1.7 * Math.sin(th);
     const Pp = V.comb([0, py, 0], pb.F, -15 * b, pb.L, sway);

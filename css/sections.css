@@ -282,7 +282,8 @@ html.anim .wo-shell.in { clip-path: inset(-60px -60px -90px -60px); transform: n
 .stage-card.wiping .wipe-chev { opacity: 1; }
 
 @keyframes drift { from { transform: translateX(-26px); } to { transform: translateX(34px); } }
-.sv-clouds { animation: drift 38s ease-in-out infinite alternate; }
+.sv-clouds { animation: none; }
+.scene.on .sv-clouds { animation: drift 38s ease-in-out infinite alternate; }
 html.anim .scene:not(.pop) .it-pop, html.anim .scene:not(.pop) .it-sh { opacity: 0; }
 .scene.pop .it-sh { animation: shIn .5s ease both; animation-delay: calc(var(--wd, .5s) + var(--i) * .08s + .28s); }
 @keyframes shIn { from { opacity: 0; } to { opacity: 1; } }
