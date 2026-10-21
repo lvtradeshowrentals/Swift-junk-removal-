@@ -122,7 +122,7 @@
   const C = { on: false, visible: false, t: 0, last: 0, raf: 0, k: -1 };
   const GY = 272, TS = .5, CS = .58, PXCM = 1.29, ITEM_K = 1 / PXCM;
   const TX = 560 - 722 * TS;      /* truck's tailgate x */
-  const CYC = 9.2, GRIP = 27, HOIST_Y = 138, HOIST_F_SOLO = 36, LAND = .60, SC = .8;
+  const CYC = 9.6, GRIP = 27, HOIST_Y = 138, HOIST_F_SOLO = 36, LAND = .60, SC = .8;
   const COUCH = { t: 'couch', slot: [100, -172, .93, 0], gy: 84 };
   const CHAIR = { t: 'armchair', slot: [204, -172, .93, 2], gy: 100 };
   const ease = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
@@ -150,57 +150,63 @@
     C.fl = [0, 1].map(() => { const u = document.createElementNS(NS_, 'use'); u.setAttribute('visibility', 'hidden'); $('cwFlight').appendChild(u); return u; });
   }
 
-  /* the whole performance is a function of time since the step lit up */
+  /* the whole performance is a function of time since the step lit up.
+     Taking turns, so nobody walks through anybody: the armchair goes in first (one person, in from the left, hoist, then off toward the cab
+     down the near side of the truck); only when that spot is clear does the couch pair come in behind them, hoist, and leave the same way. */
+  const TL = { sIn0: .2, sIn1: 2.2, sH0: 2.2, sH1: 3.5, sS1: 3.6, sA1: 5.4, pIn0: 2.5, pIn1: 4.9, pH0: 4.9, pH1: 6.2, pS1: 6.3, pA1: 8.1, fade0: 8.3, fade1: 9.45 };
+  const XEXIT = 470;
   function crewFrame(t) {
     t = Math.max(0, t);
     const k = Math.floor(t / CYC), u = t - k * CYC;
     const dC = SW.ITEM_DIM.couch, off = dC.w * SC * CS / 2 + GRIP * PC;
     const cxH = TX + COUCH.slot[0] * TS, caH = TX + CHAIR.slot[0] * TS;
-    const XP0 = -12, XS0 = -30, XAW = -60;
+    const XP0 = -12, XS0 = -30;
 
     /* bed contents and a soft reset between loads */
-    const landC = 2.4 + LAND * 1.3, landA = 3.4 + LAND * 1.3;
+    const landC = TL.pH0 + LAND * 1.3, landA = TL.sH0 + LAND * 1.3;
     C.bed[0].setAttribute('visibility', u >= landC ? 'visible' : 'hidden'); C.bed[1].setAttribute('visibility', u >= landA ? 'visible' : 'hidden');
-    C.bedG.setAttribute('opacity', (1 - sm(7.4, 8.6, u)).toFixed(2));
+    C.bedG.setAttribute('opacity', (1 - sm(TL.fade0, TL.fade1, u)).toFixed(2));
 
-    /* pair: u 0..2.4 carry in, 2.4..3.7 hoist, 3.7..4.1 stand, 4.1..6.2 walk away */
     const pst = (role) => {
       const sgn = role ? 1 : -1, yRole = GY + (role ? 8 : 5);
       let x, vis = 1, o, pair = false, yaw = role ? PI : 0;
-      if (u < 2.4) {
-        const w = u / 2.4, cx = lerp(XP0, cxH, ease(w)); x = cx + sgn * off; vis = clamp(w * 6, 0, 1);
+      if (u < TL.pIn0) {
+        x = XP0 + sgn * off; vis = 0; o = { yaw, theta: 0, amp: 0 };
+      } else if (u < TL.pIn1) {
+        const w = (u - TL.pIn0) / (TL.pIn1 - TL.pIn0), cx = lerp(XP0, cxH, ease(w)); x = cx + sgn * off; vis = clamp(w * 6, 0, 1);
         const ph = SW.crew.phase(Math.abs(cx - XP0) / PC) * (role ? -1 : 1) + role * 1.9;
         o = { yaw, theta: ph, amp: Math.pow(Math.sin(PI * w), .55) * .9, carry: true, gy: COUCH.gy, gf: GRIP, gl: 15, gm: 1, lean: 0, effort: .55 };
         pair = true;
-      } else if (u < 3.7) {
-        const h = (u - 2.4) / 1.3, l = sm(0, .30, h), rel = sm(.40, .66, h);
+      } else if (u < TL.pH1) {
+        const h = (u - TL.pH0) / (TL.pH1 - TL.pH0), l = sm(0, .30, h), rel = sm(.40, .66, h);
         x = cxH + sgn * off;
         o = { yaw, theta: 0, amp: 0, carry: true, gy: lerp(COUCH.gy, HOIST_Y, l), gf: GRIP, gl: 15, gm: h < .4 ? 1 : 1 - rel, lean: 0, headPitch: 8 * l * (1 - sm(.4, .7, h)), effort: .9 * (1 - sm(.5, .8, h)) };
         pair = h < .4;
-      } else if (u < 4.1) {
+      } else if (u < TL.pS1) {
         x = cxH + sgn * off; o = { yaw, theta: 0, amp: 0 };
-      } else if (u < 6.2) {
-        const w = (u - 4.1) / 2.1, e = ease(w); x = lerp(cxH + sgn * off, XAW + sgn * 14, e); vis = 1 - sm(.78, 1, w); yaw = PI;
-        o = { yaw: PI, theta: SW.crew.phase(Math.abs(x - (cxH + sgn * off)) / PC) + role * 1.4 + 1, amp: Math.pow(Math.sin(PI * w), .55) * .95 };
-      } else { x = XAW; vis = 0; o = { yaw: PI, theta: 0, amp: 0 }; }
+      } else if (u < TL.pA1) {
+        /* off toward the cab, the front man first, both facing the way they walk */
+        const w = (u - TL.pS1) / (TL.pA1 - TL.pS1), e = ease(w), x0 = cxH + sgn * off; x = lerp(x0, XEXIT + sgn * off, e); vis = 1 - sm(.7, 1, w); yaw = 0;
+        o = { yaw: 0, theta: SW.crew.phase(Math.abs(x - x0) / PC) + role * 1.4 + 1, amp: Math.pow(Math.sin(PI * w), .55) * .95 };
+      } else { x = XEXIT + sgn * off; vis = 0; o = { yaw: 0, theta: 0, amp: 0 }; }
       return { x, y: yRole, vis, o, pair, role };
     };
     const solo = () => {
       const xs = caH - HOIST_F_SOLO * PC, y = GY + 13;
       let x = xs, vis = 1, o, carry = '';
-      if (u < 1.0) { x = XS0; vis = 0; o = { yaw: 0, theta: 0, amp: 0 }; }
-      else if (u < 3.4) {
-        const w = (u - 1.0) / 2.4; x = lerp(XS0, xs, ease(w)); vis = clamp(w * 6, 0, 1);
+      if (u < TL.sIn0) { x = XS0; vis = 0; o = { yaw: 0, theta: 0, amp: 0 }; }
+      else if (u < TL.sIn1) {
+        const w = (u - TL.sIn0) / (TL.sIn1 - TL.sIn0); x = lerp(XS0, xs, ease(w)); vis = clamp(w * 6, 0, 1);
         o = { yaw: 0, theta: SW.crew.phase(Math.abs(x - XS0) / PC) + .5, amp: Math.pow(Math.sin(PI * w), .55) * .95, carry: true, gy: CHAIR.gy, gf: GRIP, gl: 15, gm: 1, lean: -8, effort: .25 }; carry = 'armchair';
-      } else if (u < 4.7) {
-        const h = (u - 3.4) / 1.3, l = sm(0, .30, h), rel = sm(.40, .66, h), turn = ease(clamp((h - .66) / .34, 0, 1));
-        o = { yaw: lerp(.05, PI - .1, turn), theta: 0, amp: 0, carry: true, gy: lerp(CHAIR.gy, HOIST_Y, l), gf: lerp(GRIP, HOIST_F_SOLO, l), gl: 15, gm: h < .4 ? 1 : 1 - rel, lean: lerp(-8, -3, l) * (1 - sm(.5, 1, h)), headPitch: 10 * l * (1 - sm(.4, .7, h)), effort: .5 * (1 - sm(.5, .8, h)) };
+      } else if (u < TL.sH1) {
+        const h = (u - TL.sH0) / (TL.sH1 - TL.sH0), l = sm(0, .30, h), rel = sm(.40, .66, h);
+        o = { yaw: .05, theta: 0, amp: 0, carry: true, gy: lerp(CHAIR.gy, HOIST_Y, l), gf: lerp(GRIP, HOIST_F_SOLO, l), gl: 15, gm: h < .4 ? 1 : 1 - rel, lean: lerp(-8, -3, l) * (1 - sm(.5, 1, h)), headPitch: 10 * l * (1 - sm(.4, .7, h)), effort: .5 * (1 - sm(.5, .8, h)) };
         carry = h < .4 ? 'armchair' : '';
-      } else if (u < 5.0) { o = { yaw: PI - .1, theta: 0, amp: 0 }; }
-      else if (u < 7.0) {
-        const w = (u - 5.0) / 2.0, e = ease(w); x = lerp(xs, XAW, e); vis = 1 - sm(.75, 1, w);
-        o = { yaw: PI, theta: SW.crew.phase(Math.abs(x - xs) / PC) + 2.3, amp: Math.pow(Math.sin(PI * w), .55) * .95 };
-      } else { x = XAW; vis = 0; o = { yaw: PI, theta: 0, amp: 0 }; }
+      } else if (u < TL.sS1) { o = { yaw: .05, theta: 0, amp: 0 }; }
+      else if (u < TL.sA1) {
+        const w = (u - TL.sS1) / (TL.sA1 - TL.sS1), e = ease(w); x = lerp(xs, XEXIT + 40, e); vis = 1 - sm(.7, 1, w);
+        o = { yaw: .05, theta: SW.crew.phase(Math.abs(x - xs) / PC) + 2.3, amp: Math.pow(Math.sin(PI * w), .55) * .95 };
+      } else { x = XEXIT + 40; vis = 0; o = { yaw: .05, theta: 0, amp: 0 }; }
       return { x, y, vis, o, carry };
     };
 
@@ -234,9 +240,9 @@
       const o0 = { yaw: 0, theta: 0, amp: 0, carry: true, gy: HOIST_Y, gf: GRIP, gl: 15, gm: 1 }, o1 = Object.assign({}, o0, { yaw: PI });
       const g0 = SW.crew.solve(o0).grip, g1 = SW.crew.solve(o1).grip;
       const hx = (cxH - off + g0[0] * PC + cxH + off + g1[0] * PC) / 2, hy = (GY + 5 + g0[1] * PC + GY + 8 + g1[1] * PC) / 2;
-      fly(C.fl[0], COUCH, 2.4 + .4 * 1.3, landC, [hx, hy], CS * SC);
+      fly(C.fl[0], COUCH, TL.pH0 + .4 * 1.3, landC, [hx, hy], CS * SC);
       const os = { yaw: .05, theta: 0, amp: 0, carry: true, gy: HOIST_Y, gf: HOIST_F_SOLO, gl: 15, gm: 1 }, gs = SW.crew.solve(os).grip;
-      fly(C.fl[1], CHAIR, 3.4 + .4 * 1.3, landA, [caH - HOIST_F_SOLO * PC + gs[0] * PC, GY + 13 + gs[1] * PC], CS * SC);
+      fly(C.fl[1], CHAIR, TL.sH0 + .4 * 1.3, landA, [caH - HOIST_F_SOLO * PC + gs[0] * PC, GY + 13 + gs[1] * PC], CS * SC);
     }
   }
 

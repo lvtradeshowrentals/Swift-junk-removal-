@@ -315,13 +315,21 @@
     const rigX = (lx) => L.truckLeft + lx * ts;
     const nearY = (k) => gp + (10 + 3 * k) * ts;
     const nearS = (k) => ts * SW.depth(478 + 10 + 3 * k);
-    const WALK = 270, CARRY = 255, JOG = 470, JOGK = 1.7, DEP = .1, T_PICK = .55, T_HOIST = .92;
+    const WALK = 270, CARRY = 255, JOG = 470, JOGK = 1.7, DEP = .1, T_PICK = .55, T_HOIST = .92, CLEAR = .45;
     const cmd = (a, b) => Math.hypot(b.x - a.x, (b.y - a.y) * 2) / (PXCM * (a.s + b.s) / 2);
     const segs = [[], [], []];
     /* they arrive from the left edge, already beside the pile: no time spent walking across the lawn */
     const doorY = H - (520 - 392) * S0, doorS = SW.depth(392) * ts, pileX0 = (HERO.pileX - L.cam0) * S0;
-    const at = [0, 1, 2].map((c) => ({ x: pileX0 - (125 + c * 26) * S0, y: doorY + c * 1.5 * ts, s: doorS }));
-    const clock = [0, .08, .16];
+    /* each one starts at least a body-width and a half from the next, in the order of where they are heading (left end of the couch,
+       right end, the armchair), so nobody has to cross anybody to get to their piece */
+    const START_X = [-260, 100, -28];
+    /* depth: how far in front of an object's centre line (toward the camera) someone stands to clear it, in screen px for a gap in cm */
+    const laneGap = (cm, s) => cm * PXCM * s / 2;
+    const couch0 = HERO.pile[0], sC = SW.depth(couch0.y) * ts, cyC = H - (520 - couch0.y) * S0;
+    const FRONT_Y = cyC + laneGap(61, sC);          /* the near-side lane: clear of the couch's depth and a body's width */
+    const at = [0, 1, 2].map((c) => ({ x: pileX0 + START_X[c] * S0, y: c === 2 ? FRONT_Y : doorY + c * 1.5 * ts, s: c === 2 ? sC : doorS }));
+    const clock = [.06, .06, 0];
+    const hoistEnd = [];
     const info = [], entered = [false, false, false];
     const landOf = [];
 
@@ -344,11 +352,14 @@
       segs[c].push(seg); clock[c] += dur; return seg;
     };
     const idle = (c, P, dur, yaw, fn) => {
-      const seg = { t0: clock[c], t1: clock[c] + dur, ev(u) { return { x: P.x, y: P.y, s: P.s, vis: entered[c] ? 1 : 0, carry: '', pair: -1, rot: 0, sc: 1, o: Object.assign({ yaw, theta: 0, amp: 0 }, fn ? fn(u) : {}) }; } };
+      const shown = entered[c];       /* a wait before someone's first walk is out of sight: they have not arrived yet */
+      const seg = { t0: clock[c], t1: clock[c] + dur, ev(u) { return { x: P.x, y: P.y, s: P.s, vis: shown ? 1 : 0, carry: '', pair: -1, rot: 0, sc: 1, o: Object.assign({ yaw, theta: 0, amp: 0 }, fn ? fn(u) : {}) }; } };
       segs[c].push(seg); clock[c] += dur; return seg;
     };
 
-    HERO.pile.forEach((it, i) => {
+    /* the armchair goes in first (one person, and the shorter carry), then the couch pair comes in behind them */
+    [1, 0].forEach((i) => {
+      const it = HERO.pile[i];
       const ids = it.crew, K = ids.length, ct = it.ct || it.t, dim = SW.ITEM_DIM[ct], sc = it.sc;
       const rotC = it.carryRot || 0, lenU = (rotC ? dim.h : dim.w) * sc, thickU = (rotC ? dim.w : dim.h) * sc;
       const slot = TR.LOAD[i], slotC = TR.center(slot);
@@ -358,7 +369,7 @@
       const lowG = clamp(((it.up || 0) + dim.h * sc / 2) * ITEM_K, 16, 96), bMax = clamp((70 - lowG) / 46, 0, 1);
       /* where each person stands at each stage (a pair: role 0 is the rear of the carry and faces the trailer, role 1 leads, walking backwards) */
       const grasp = ids.map((c, k) => {
-        if (K === 1) return { x: cx0 + GRIP * PXCM * sP, y: cy0 + 3 * ts, s: sP };
+        if (K === 1) return { x: cx0 + GRIP * PXCM * sP, y: cy0 + laneGap(53, sP), s: sP };   /* one person stands in front of the piece, not inside it */
         const off = lenU * sP / 2 + GRIP * PXCM * sP;
         return { x: cx0 + (k ? off : -off), y: cy0 + (4 + 3 * k) * ts, s: sP };
       });
@@ -374,13 +385,17 @@
       const dOut = Math.max.apply(null, ids.map((c, k) => cmd(at[c], grasp[k]) / WALK));
       const dCar = Math.max.apply(null, ids.map((c, k) => cmd(grasp[k], hoist[k]) / CARRY));
       const landRaw = t0 + dOut + T_PICK + dCar + LAND * T_HOIST;
-      const need = Math.max.apply(null, [0].concat((it.after || []).map((d) => landOf[d] + DEP)));
+      /* the couch's lifters stand where the armchair's hoist spot is, so they only arrive once that person has finished and stepped clear */
+      const needH = Math.max.apply(null, [0].concat((it.clear || []).map((d) => hoistEnd[d] + CLEAR + LAND * T_HOIST)));
+      const need = Math.max(needH, Math.max.apply(null, [0].concat((it.after || []).map((d) => landOf[d] + DEP))));
       const wait = Math.max(0, need - landRaw);
       if (wait > .05) ids.forEach((c) => idle(c, at[c], wait, PI - .12));
       const tStart = t0 + wait;
       const dir = ids.map((c, k) => (K === 1 ? PI : (k ? PI : 0)));     /* facing while carrying: role 0 faces right, role 1 faces left, solo faces the trailer */
       let tPick = 0, tHoist = 0;
       ids.forEach((c, k) => {
+        /* a pair arrives from just outside its end of the couch: the lead man from the right, the other from the left (never from across the furniture) */
+        if (K === 2 && !entered[c]) at[c] = { x: grasp[k].x + (k ? 34 : -120) * S0, y: doorY + k * 1.5 * ts, s: doorS };
         const P0 = at[c], G = grasp[k], Hs = hoist[k];
         const yawOut = PI - depthAngle(G.y - P0.y, G.x - P0.x);
         /* approach */
@@ -417,9 +432,9 @@
         } };
         segs[c].push(hoistSeg); clock[c] += T_HOIST;
         at[c] = Hs;
-        if (k === 0) info[i] = { c: ids[0], ids, K, tGrasp: tPick + .40 * T_PICK, tLand: tHoist + LAND * T_HOIST, tRelease: tHoist + RELEASE * T_HOIST, ct, hoist: hoistSeg, slot, slotC, sc, rotC, up: it.up || 0, gyH: HOIST_Y };
+        if (k === 0) info[i] = { c: ids[0], ids, K, tPick0: tPick, slideY: K === 1 ? (laneGap(53, sP) - 3 * ts) / S0 : 0, tGrasp: tPick + .40 * T_PICK, tLand: tHoist + LAND * T_HOIST, tRelease: tHoist + RELEASE * T_HOIST, ct, hoist: hoistSeg, slot, slotC, sc, rotC, up: it.up || 0, gyH: HOIST_Y };
       });
-      landOf[i] = tHoist + LAND * T_HOIST;
+      landOf[i] = tHoist + LAND * T_HOIST; hoistEnd[i] = tHoist + T_HOIST;
     });
     const T_load = Math.max(clock[0], clock[1], clock[2]) + .1;
 
@@ -468,6 +483,8 @@
     info.forEach((x, i) => {
       const done = tv >= x.tLand;
       if (done) landed++;
+      /* a single person stands in front of the piece, not inside it, and as they reach for it the piece is drawn in toward their hands */
+      if (x.slideY) { const sl = (smooth(x.tPick0 + .05, x.tGrasp, tv) * x.slideY).toFixed(2); setIf(pileEls[i], 'ps' + i, sl, (el, v) => { if (el) el.setAttribute('transform', `translate(0 ${v})`); }); }
       vis2(pileEls[i], 'pl' + i, tv >= x.tGrasp ? 'hidden' : 'visible');
       vis2(pileElsN[i], 'pn' + i, tv >= x.tGrasp ? 'hidden' : 'visible');
       vis2(slotEls[i], 'sl' + i, done ? 'visible' : 'hidden');

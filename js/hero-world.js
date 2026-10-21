@@ -19,7 +19,7 @@
        relative to the art's native size; gy = hand height in cm while carrying; carryRot = how it is turned in the hands.
        Same order as the trailer's load plan (trailer.js): floor row, then the flat things on top. */
     pile: [
-      { t: 'couch', dx: -70, y: 410, sc: 1.55, crew: [0, 1], gy: 84 },
+      { t: 'couch', dx: -70, y: 410, sc: 1.55, crew: [0, 1], gy: 84, clear: [1] },
       { t: 'armchair', dx: 92, y: 406, sc: 1.3, crew: [2], gy: 100 },
     ],
   };
