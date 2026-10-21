@@ -434,7 +434,6 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 .corner.tl { left: var(--bl); top: var(--bt); border-width: 2.5px 0 0 2.5px; } .corner.tr { right: var(--br); top: var(--bt); border-width: 2.5px 2.5px 0 0; }
 .corner.bl { left: var(--bl); bottom: var(--bb); border-width: 0 0 2.5px 2.5px; } .corner.br { right: var(--br); bottom: var(--bb); border-width: 0 2.5px 2.5px 0; }
 .af-ring { position: absolute; left: 50%; top: 54%; width: 46px; height: 46px; margin: -23px; border-radius: 50%; border: 2px solid #ffd54a; opacity: 0; }
-.af-tag { position: absolute; left: 50%; top: 9%; transform: translateX(-50%); padding: 3px 7px; border-radius: 5px; background: rgba(0, 0, 0, .55); color: #fff; font: 600 9px/1 var(--mono); letter-spacing: .1em; opacity: 0; }
 .flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
 .shutter { position: absolute; left: 50%; bottom: 10px; width: 36px; height: 36px; margin-left: -18px; border-radius: 50%; border: 3px solid #fff; background: radial-gradient(circle, #fff 55%, transparent 58%); }
 .thread { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; min-width: 0; }
@@ -453,8 +452,7 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 .step.on .v1 .screen { animation: bracketLock .8s cubic-bezier(.3, .7, .2, 1) .1s both; }
 .step.on .v1 .corner { animation: lockColor .25s ease .85s both; }
 .step.on .v1 .af-ring { animation: afRing .6s ease .8s both; }
-.step.on .v1 .af-tag { animation: afTag .2s ease .85s both; }
-.step.on .v1 .flash { animation: flash .45s ease-out 1.25s forwards; }
+.step.on .v1 .step.on .v1 .flash { animation: flash .45s ease-out 1.25s forwards; }
 .step.on .v1 .shutter { animation: press .28s ease 1.2s both; }
 .step.on .v1 .b-photo { animation: bubIn .55s var(--spring) 1.5s both; }
 .step.on .v1 .b-dots { animation: dotsLife .75s ease 2.05s both; }
@@ -465,7 +463,6 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 @keyframes bracketLock { from { --bl: 8%; --bt: 10%; --br: 8%; --bb: 22%; } to { --bl: 5%; --bt: 19%; --br: 5%; --bb: 15%; } }
 @keyframes lockColor { to { border-color: #ffd54a; } }
 @keyframes afRing { 0% { opacity: 1; transform: scale(1.7); } 60% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.8); } }
-@keyframes afTag { to { opacity: 1; } }
 @keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
 @keyframes press { 0%, 100% { transform: scale(1); } 45% { transform: scale(.84); } }
 @keyframes bubIn { from { opacity: 0; transform: translateY(14px) scale(.92); } to { opacity: 1; transform: none; } }
