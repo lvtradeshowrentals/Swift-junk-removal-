@@ -185,6 +185,7 @@
 
   const wrap = (fn) => () => skyBg() + `<g transform="translate(0 ${DY})">` + fn() + '</g>';
   SW.scenes.build = { garage: wrap(garage), furniture: wrap(furniture), construction: wrap(construction), commercial: wrap(commercial), estate: wrap(estate) };
+  SW.scenes.build.yard = SW.scenes.build.estate;
   SW.scenes.H = H + DY;
 
   /* labels pinned to the pile: [text, x, y of the item's top, stem length], all in canvas units */

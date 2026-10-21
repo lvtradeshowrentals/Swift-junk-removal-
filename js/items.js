@@ -99,6 +99,15 @@
     <path d="M12 -40 Q10 -20 14 -8" stroke="#6f7894" stroke-width="2" fill="none" opacity=".55"/>
     <path d="M-24 -36 Q-26 -20 -22 -8" stroke="#6f7894" stroke-width="1.6" fill="none" opacity=".45"/>`];
 
+  A.brush = [150, 62, `
+    <path d="M-70 0 Q-60 -22 -34 -30 Q-10 -46 18 -38 Q50 -34 70 -8 L74 0 Z" fill="#5a4a30"/>
+    <path d="M-62 -4 L-24 -34 M-40 -10 L6 -44 M-10 -6 L38 -40 M20 -6 L64 -22 M-72 -2 L-30 -22 M10 -4 L56 -12" stroke="#8a6c44" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M-48 -8 L-10 -40 M0 -8 L44 -34" stroke="#c9a56a" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+    <path d="M-30 -22 Q-8 -66 34 -34 Q10 -44 -30 -22Z" fill="#6f8f3f"/><path d="M-26 -24 Q-4 -58 30 -34" stroke="#b6cf6a" stroke-width="1.4" fill="none" opacity=".7"/>
+    <path d="M-60 -14 Q-52 -50 -12 -42 Q-40 -38 -60 -14Z" fill="#587a34"/>
+    <path d="M24 -26 Q50 -52 78 -22 Q54 -34 24 -26Z" fill="#7a9a46"/>
+    <path d="M-72 -2 L-52 -10 M60 -2 L78 -6 M-20 -2 L8 -12" stroke="#3d3220" stroke-width="2.4" stroke-linecap="round"/>`];
+
   A.bucket = [38, 44, `
     <path d="M-17 -40 H17 L14 0 H-14 Z" fill="#3a6fb0"/>
     <path d="M-17 -40 H17 L16.4 -34 H-16.4 Z" fill="#5a90d0"/>

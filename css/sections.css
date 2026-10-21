@@ -701,4 +701,4 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 
 /* keep each photo's subject in frame when the card crops it */
 .dk-card[data-key="construction"] .dk-art { --fx: 92%; }
-.dk-card[data-key="estate"] .dk-art { --fx: 40%; }
+.dk-card[data-key="yard"] .dk-art { --fx: 50%; }

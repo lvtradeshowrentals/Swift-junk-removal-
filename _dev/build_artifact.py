@@ -13,12 +13,12 @@ for name in ['core', 'items', 'landmarks', 'bg', 'world', 'truck', 'trailer', 'h
     assert '</script' not in js
     s = s.replace(tag, '<script>\n' + js + '\n</script>')
 
-# photos dropped in img/ (garage, furniture, construction, commercial, estate) are resized and embedded
+# photos dropped in img/ (garage, furniture, construction, commercial, yard) are resized and embedded
 import base64, io, glob, json
 photos = {}
 try:
     from PIL import Image
-    for key in ['garage', 'furniture', 'construction', 'commercial', 'estate']:
+    for key in ['garage', 'furniture', 'construction', 'commercial', 'yard']:
         hits = [p for p in glob.glob(os.path.join(ROOT, 'img', key + '.*')) if p.lower().endswith(('.jpg', '.jpeg', '.png', '.webp'))]
         if not hits: continue
         im = Image.open(hits[0]).convert('RGB')

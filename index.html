@@ -467,11 +467,11 @@
                 <h3 id="h-s1" tabindex="-1">What's going?</h3>
                 <p class="pane-sub">Pick everything that applies.</p>
                 <div class="tiles">
-                  <label class="tile"><input type="checkbox" name="service" value="garage"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-44 0) scale(.74)"><use href="#it-boxStack"/></g><g transform="translate(32 0) scale(.74)"><use href="#it-bike"/></g></svg><b>Garage or home</b><small>Boxes, bikes, storage</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="garage"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-44 0) scale(.74)"><use href="#it-boxStack"/></g><g transform="translate(32 0) scale(.74)"><use href="#it-bike"/></g></svg><b>Home or garage</b><small>Boxes, storage, estates</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
                   <label class="tile"><input type="checkbox" name="service" value="furniture"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-30 0) scale(.72)"><use href="#it-couch"/></g><g transform="translate(52 0) scale(.56)"><use href="#it-fridge"/></g></svg><b>Furniture and appliances</b><small>Couches, mattresses, fridges</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
                   <label class="tile"><input type="checkbox" name="service" value="construction"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-30 0) scale(.62)"><use href="#it-lumber"/></g><g transform="translate(50 0) scale(.88)"><use href="#it-bags"/></g></svg><b>Construction debris</b><small>Lumber, drywall, tile</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
                   <label class="tile"><input type="checkbox" name="service" value="commercial"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-40 0) scale(.7)"><use href="#it-desk"/></g><g transform="translate(24 0) scale(.74)"><use href="#it-chair"/></g><g transform="translate(62 0) scale(.74)"><use href="#it-filing"/></g></svg><b>Office or property</b><small>Desks, turnovers, vacant units</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
-                  <label class="tile"><input type="checkbox" name="service" value="estate"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-52 0) scale(.7)"><use href="#it-dresser"/></g><g transform="translate(16 0) scale(.72)"><use href="#it-armchair"/></g><g transform="translate(68 0) scale(.7)"><use href="#it-lamp"/></g></svg><b>Estate or move-out</b><small>Whole-house cleanouts</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="yard"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-28 0) scale(.78)"><use href="#it-brush"/></g><g transform="translate(46 0) scale(.72)"><use href="#it-bags"/></g><g transform="translate(70 0) scale(.62)"><use href="#it-bucket"/></g></svg><b>Yard or outdoor</b><small>Trees, brush, fencing, patio</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
                   <label class="tile tile-open"><input type="checkbox" name="service" value="general"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-16 0)"><rect x="-26" y="-50" width="52" height="50" rx="3" fill="#e9eef8" stroke="#c4cee3" stroke-width="1.5"/><text x="0" y="-14" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="40" fill="#e8803f">?</text></g><g transform="translate(40 0) scale(.55)"><use href="#it-box"/></g></svg><b>Not sure yet</b><small>Send a photo, we'll tell you</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
                 </div>
                 <p class="err" id="e-service" role="alert"></p>
@@ -553,13 +553,13 @@
 
   <div class="deck" id="deck" data-reveal style="--d:.12s">
     <ul class="dk-track" id="dkTrack" aria-label="What we remove" tabindex="0">
-        <li class="dk-card" data-key="garage" aria-roledescription="slide" aria-label="1 of 5: Garage and home cleanouts">
+        <li class="dk-card" data-key="garage" aria-roledescription="slide" aria-label="1 of 5: Home, garage and estate cleanouts">
           <div class="dk-art" aria-hidden="true"></div>
           <div class="dk-body">
             <span class="dk-n">01<i>/ 05</i></span>
-            <h3>Garage and home cleanouts</h3>
-            <p>Garages, attics, basements, sheds and spare rooms. We carry it out and haul it away.</p>
-            <ul class="dk-chips"><li>Boxes and bins</li><li>Bikes</li><li>Old mattresses</li><li>Storage</li></ul>
+            <h3>Home, garage and estate cleanouts</h3>
+            <p>Garages, attics, basements and spare rooms, or a whole house for a move-out or estate. We carry it out and haul it away.</p>
+            <ul class="dk-chips"><li>Boxes and bins</li><li>Attics and basements</li><li>Move-outs</li><li>Estates</li></ul>
             <a class="dk-cta" href="#quote" data-service="garage">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
           </div>
         </li>
@@ -593,20 +593,20 @@
             <a class="dk-cta" href="#quote" data-service="commercial">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
           </div>
         </li>
-        <li class="dk-card" data-key="estate" aria-roledescription="slide" aria-label="5 of 5: Estate and move-out">
+        <li class="dk-card" data-key="yard" aria-roledescription="slide" aria-label="5 of 5: Yard and outdoor cleanup">
           <div class="dk-art" aria-hidden="true"></div>
           <div class="dk-body">
             <span class="dk-n">05<i>/ 05</i></span>
-            <h3>Estate and move-out</h3>
-            <p>Full-house cleanouts for estates, sales and move-outs, on your timeline.</p>
-            <ul class="dk-chips"><li>Dressers</li><li>Armchairs</li><li>Lamps and frames</li><li>Whole homes</li></ul>
-            <a class="dk-cta" href="#quote" data-service="estate">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            <h3>Yard and outdoor cleanup</h3>
+            <p>Tree trimmings, brush, palm fronds, old fencing and the outdoor items you are done with.</p>
+            <ul class="dk-chips"><li>Branches and brush</li><li>Palm fronds</li><li>Fencing</li><li>Patio and hot tubs</li></ul>
+            <a class="dk-cta" href="#quote" data-service="yard">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
           </div>
         </li>
     </ul>
     <div class="dk-ui wrap">
       <button class="dk-arrow" id="dkPrev" type="button" aria-label="Previous service"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <ol class="dk-dots" id="dkDots" aria-label="Choose a service"><li><button type="button" aria-label="Garage and home cleanouts"><span>Garage</span></button></li><li><button type="button" aria-label="Furniture and appliances"><span>Furniture</span></button></li><li><button type="button" aria-label="Construction cleanup"><span>Construction</span></button></li><li><button type="button" aria-label="Commercial and property"><span>Commercial</span></button></li><li><button type="button" aria-label="Estate and move-out"><span>Estate</span></button></li></ol>
+      <ol class="dk-dots" id="dkDots" aria-label="Choose a service"><li><button type="button" aria-label="Home, garage and estate cleanouts"><span>Home</span></button></li><li><button type="button" aria-label="Furniture and appliances"><span>Furniture</span></button></li><li><button type="button" aria-label="Construction cleanup"><span>Construction</span></button></li><li><button type="button" aria-label="Commercial and property"><span>Commercial</span></button></li><li><button type="button" aria-label="Yard and outdoor cleanup"><span>Yard</span></button></li></ol>
       <button class="dk-arrow" id="dkNext" type="button" aria-label="Next service"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
   </div>
@@ -848,11 +848,11 @@
         <div>
           <h4>Services</h4>
           <ul>
-            <li><a href="#quote" data-service="garage">Garage and home</a></li>
+            <li><a href="#quote" data-service="garage">Home, garage and estate</a></li>
             <li><a href="#quote" data-service="furniture">Furniture and appliances</a></li>
             <li><a href="#quote" data-service="construction">Construction cleanup</a></li>
             <li><a href="#quote" data-service="commercial">Commercial and property</a></li>
-            <li><a href="#quote" data-service="estate">Estate and move-out</a></li>
+            <li><a href="#quote" data-service="yard">Yard and outdoor</a></li>
           </ul>
         </div>
         <div>

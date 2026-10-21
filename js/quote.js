@@ -5,8 +5,8 @@
 (function (SW) {
   'use strict';
   const $ = SW.$;
-  const SERVICES = { garage: 'Garage or home', furniture: 'Furniture and appliances', construction: 'Construction debris', commercial: 'Office or property', estate: 'Estate or move-out', general: 'Not sure yet' };
-  const SHORT = { garage: 'Garage', furniture: 'Furniture', construction: 'Construction', commercial: 'Commercial', estate: 'Estate', general: 'To be confirmed' };
+  const SERVICES = { garage: 'Home, garage or estate', furniture: 'Furniture and appliances', construction: 'Construction debris', commercial: 'Office or property', yard: 'Yard or outdoor', general: 'Not sure yet' };
+  const SHORT = { garage: 'Home or garage', furniture: 'Furniture', construction: 'Construction', commercial: 'Commercial', yard: 'Yard', general: 'To be confirmed' };
   const WHEN = { today: 'Today', tomorrow: 'Tomorrow', week: 'This week', flexible: "I'm flexible" };
   const NEXT = ['Next: where and when', 'Next: your details', 'Send my request'];
   const FINE = ['Takes about a minute. Nothing is sent until the last step.', 'We use the ZIP to pick the nearest crew.', "We'll only use your number to text or call about this job."];
@@ -17,7 +17,7 @@
     furniture: [['couch', 104, -170, .62, 0], ['fridge', 180, -170, .6, 2]],
     construction: [['bags', 244, -170, .6, 0], ['lumber', 196, -250, .5, -4]],
     commercial: [['desk', 40, -214, .46, -3], ['chair', 142, -219, .52, 6]],
-    estate: [['dresser', 218, -170, .52, 0], ['lamp', 238, -207, .5, 3]],
+    yard: [['brush', 214, -170, .5, 0], ['bags', 244, -170, .52, 0]],
   };
 
   const S = { step: 1, sel: new Set(), files: [], no: '' };
