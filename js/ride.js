@@ -58,14 +58,16 @@
     /* wide frame: on a desktop the whole rig; on a phone a tight shot of the pickup with just the front of the trailer, so the truck stays big */
     const zW = wide ? clamp(.96 * W / (nose - pileLeft), .4, 1) : .8;
     const txW = .978 * W - zW * nose;
-    const zC = wide ? 1 : zW;                      /* a phone holds one framing for the whole job: no zoom, one pan in and one out */
-    const txC = wide ? (.30 * W - rampTip) : (.03 * W - zC * pileLeftC);
+    /* a phone's working shot takes in the pile, the whole trailer and the back of the cab; the camera zooms out to it once and holds */
+    const spanL = pileCx - 225 * S0, spanR = truckLeft + 40 * ts;
+    const zC = wide ? 1 : clamp(.96 * W / (spanR - spanL), .62, zW);
+    const txC = wide ? (.30 * W - rampTip) : (.02 * W - zC * spanL);
     const txMin = .975 * W - (truckLeft + TR.G.BOX_R * ts);   /* furthest the follow-cam may pan toward the cab */
     const D = (camFinal - cam0) * S0;
     L = {
       W, H, S0, ts, wide, cam0, truckLeft, B, landscape, X_MIN: HERO.X_MIN, camNow: cam0, camFinal, pileCx,
       zW, zC, txW, txC, txMin, k: zW, noseScreen: txW + zW * nose, truckLeftNow: truckLeft,
-      groundPx: H - 42 * S0, bgShift: landscape ? -44 * B : 0,
+      groundPx: H - 42 * S0, bgShift: landscape ? -44 * B : Math.round((W < 600 ? .2 : .07) * H), lift: 0,   /* portrait: sink the backdrop so only the tall landmarks clear the rooftops */
     };
     L.heroLeft = truckLeft; L.rideLeft = truckLeft;
     L.G = { strip: 0, mtn: NOM.mtn * D / B, sky: NOM.sky * D / B, foot: NOM.foot * D / B, sub: NOM.sub * D / B, cloud: NOM.cloud * D / B };
@@ -218,6 +220,7 @@
       t.style.bottom = (42 * S0 - 20 * ts) + 'px';      /* the svg's bottom edge sits 20 local units under the road */
     });
     $('actors').style.width = W + 'px'; $('actors').style.height = H + 'px';
+    const gf = $('groundFill'); if (gf) gf.style.height = L.lift ? (L.lift + 48) + 'px' : '0px';
     BG_LAYERS.forEach(([id]) => [$(id), $(id + 'N')].forEach((e) => {
       e.style.width = ((e._xb - e._xa) * B) + 'px'; e.style.height = (900 * B) + 'px'; e.style.left = (W / 2 + (e._xa - 800) * B) + 'px';
     }));
@@ -494,7 +497,7 @@
     const prog = clamp((cam - L.cam0) / (L.camFinal - L.cam0), 0, 1);
     L.truckLeftNow = L.truckLeft + splashOff;
     const zoom = fr.z, pan = fr.tx - L.txW;
-    setIf($('fgstack'), 'fg', `${f(fr.tx)}|${zoom.toFixed(4)}`, () => { const t = `translate3d(${f(fr.tx)}px,0,0) scale(${zoom.toFixed(4)})`; $('fgstack').style.transform = t; $('fgstackL').style.transform = t; });
+    setIf($('fgstack'), 'fg', `${f(fr.tx)}|${zoom.toFixed(4)}`, () => { const t = `translate3d(${f(fr.tx)}px,${f(-L.lift)}px,0) scale(${zoom.toFixed(4)})`; $('fgstack').style.transform = t; $('fgstackL').style.transform = t; });
     setIf($('bgstack'), 'bg', `${f(pan)}|${zoom.toFixed(4)}`, () => { $('bgstack').style.transform = `translate3d(${f(pan * .08)}px,${f(L.bgShift)}px,0) scale(${(1 + (zoom - 1) * .35).toFixed(4)})`; });
     const wx = `translate3d(${f((L.X_MIN - cam) * S0)}px,0,0)`;
     css($('world'), 'transform', wx); css($('worldN'), 'transform', wx);

@@ -297,7 +297,7 @@ html.anim .scene:not(.pop) .it-pop, html.anim .scene:not(.pop) .it-sh { opacity:
 .pin { position: absolute; left: calc(var(--px) * 1%); top: calc(var(--py) * 1%); width: 0; height: 0; opacity: 0; animation: pinIn .6s var(--ease-out) both; animation-delay: var(--pd); }
 .pin i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--copper-500); box-shadow: 0 0 0 3px #fff, 0 3px 8px rgba(11, 18, 32, .4); }
 .pin-stem { position: absolute; left: -.75px; bottom: 0; width: 1.5px; height: calc(var(--stem) / 680 * 100cqh); background: linear-gradient(to top, var(--copper-500), rgba(255, 255, 255, .95)); }
-.pin-label { position: absolute; left: 0; bottom: calc(var(--stem) / 680 * 100cqh); transform: translate(var(--tx, -50%), 2px); white-space: nowrap; padding: 7px 11px 6px; border-radius: 999px; background: #fff; color: var(--ink); font: 500 11px/1 var(--mono); letter-spacing: .07em; text-transform: uppercase; box-shadow: 0 8px 18px -8px rgba(11, 18, 32, .5); }
+.pin-label { position: absolute; left: 0; bottom: calc(var(--stem) / 680 * 100cqh); transform: translate(calc(var(--tx, -50%) + var(--sx, 0px)), 2px); white-space: nowrap; padding: 7px 11px 6px; border-radius: 999px; background: #fff; color: var(--ink); font: 500 11px/1 var(--mono); letter-spacing: .07em; text-transform: uppercase; box-shadow: 0 8px 18px -8px rgba(11, 18, 32, .5); }
 @keyframes pinIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 .svc-list { order: 1; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--rule); }
@@ -347,7 +347,6 @@ html.anim .scene:not(.pop) .it-pop, html.anim .scene:not(.pop) .it-sh { opacity:
   .stage-tag { left: 12px; top: 12px; font-size: 12.5px; }
 }
 @media (max-width: 520px) {
-  .pin:nth-child(even) { display: none; }
   .svc-panel-in { padding-left: 0; }
   .svc-ico { width: 52px; }
   .svc-tab { gap: 14px; }

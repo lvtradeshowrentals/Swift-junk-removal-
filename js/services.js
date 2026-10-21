@@ -27,13 +27,35 @@
         return d;
       });
 
-      let cur = 0, started = false, pending = null;
+      let cur = 0, started = false, pending = null, rz = 0;
       const track = $('svcTrack'), N = KEYS.length, STEP = .5;       /* each category gets half a screen of scroll */
       let pinned = !reduce && window.matchMedia && !matchMedia('(max-height: 440px)').matches;
 
       function setPins(i, delay) {
         pinsEl.innerHTML = SW.scenes.pins[KEYS[i]].map((p, n) =>
           `<div class="pin" style="--px:${(p[1] / 8).toFixed(2)};--py:${(p[2] / 6.8).toFixed(2)};--stem:${p[3]};--pd:${(delay + n * .09).toFixed(2)}s"><i></i><span class="pin-stem"></span><span class="pin-label" style="--tx:${p[4] === 'l' ? '-14px' : p[4] === 'r' ? 'calc(-100% + 14px)' : '-50%'}">${p[0]}</span></div>`).join('');
+        spread();
+      }
+      /* labels must never sit on top of each other or run off the picture: raise a label's stem until its box is clear of every one placed before it, and nudge it back inside the frame */
+      function spread() {
+        const run = () => {
+          const fr = stage.getBoundingClientRect(), H = fr.height || 1, k = 680 / H, placed = [];
+          Array.from(pinsEl.querySelectorAll('.pin')).forEach((pin) => {
+            const lab = pin.querySelector('.pin-label');
+            let stem = +pin.style.getPropertyValue('--stem') || 40, sx = 0;
+            for (let t = 0; t < 8; t++) {
+              pin.style.setProperty('--stem', stem); lab.style.setProperty('--sx', sx + 'px');
+              const r = lab.getBoundingClientRect();
+              if (r.left < fr.left + 8) { sx += fr.left + 8 - r.left; continue; }
+              if (r.right > fr.right - 8) { sx -= r.right - (fr.right - 8); continue; }
+              const hit = placed.find((q) => r.left < q.right + 5 && r.right > q.left - 5 && r.top < q.bottom + 4 && r.bottom > q.top - 4);
+              if (!hit) break;
+              stem += (r.bottom - hit.top + 6) * k;
+            }
+            placed.push(lab.getBoundingClientRect());
+          });
+        };
+        requestAnimationFrame(() => requestAnimationFrame(run));
       }
       function rowState(i) {
         rows.forEach((r, j) => { r.classList.toggle('on', j === i); tabs[j].setAttribute('aria-expanded', j === i ? 'true' : 'false'); });
@@ -110,7 +132,7 @@
         });
       });
       layout();
-      window.addEventListener('resize', () => { layout(); queue(); });
+      window.addEventListener('resize', () => { layout(); queue(); if (pinsEl.firstChild) { clearTimeout(rz); rz = setTimeout(() => setPins(cur, 0), 150); } });
       window.addEventListener('scroll', queue, { passive: true });
 
       /* nothing plays until the showroom is on screen, so the first pile drops in front of the visitor */

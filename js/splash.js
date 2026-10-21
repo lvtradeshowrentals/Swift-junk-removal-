@@ -10,7 +10,7 @@
   if (!SW.splash.active) return;
 
   const $ = SW.$;
-  const T_WIPE = 1650, DUR = 1700;
+  const T_WIPE = 2000, DUR = 1700;   /* the lock-up is fully built at ~1.9 s; the wipe starts right after */
   const outCubic = SW.easeOut, smooth = SW.smooth;
   const n = (v) => Math.round(v * 10) / 10;
   let raf = 0, t0 = 0, finished = false, ready = false;
