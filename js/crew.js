@@ -57,12 +57,14 @@
       fn.push(nf);
       feet.push({ fwd, lat: (i ? -1 : 1) * W, y: groundY(p) + lift, pitch: p, yaw });
     }
-    /* pelvis height: the stance legs stay just short of straight (swing legs do not limit it) */
+    /* pelvis height: the stance legs stay just short of straight. A leg's say in it fades in as the heel strikes and out as the toe lifts, so the
+       height glides instead of snapping when the support passes from one foot to the other. */
     let py = 0;
     for (let i = 0; i < 2; i++) {
       const f = feet[i], c = fract(th / TAU + i * .5);
-      if (amp > .02 && c >= .6) continue;
-      py = Math.max(py, f.y + Math.sqrt(Math.max(1200, LEG * LEG - f.fwd * f.fwd - Math.pow(Math.abs(f.lat) - 9.2, 2))));
+      const need = f.y + Math.sqrt(Math.max(1200, LEG * LEG - f.fwd * f.fwd - Math.pow(Math.abs(f.lat) - 9.2, 2)));
+      const w = amp > .02 ? (c < .6 ? 1 - sm((c - .5) / .12) : sm((c - .9) / .1)) : 1;
+      py = Math.max(py, lerp(70, need, w));
     }
     py = clamp(py || 93, 84 - (sk - 1) * 26, 95);    /* a long stride is a lower, driving posture */
     py = lerp(py, 56, b);
@@ -84,14 +86,14 @@
       const fl = -Aarm * fn[i] * (i ? 1 : 1) - 3;
       const a = { flex: fl, elbow: 14 + 20 * Math.max(0, fl / Math.max(8, Aarm)) + 10 * (o.elbowBend || 0), abd: 5 + 3 * (1 - amp) };
       if (o.gy != null) {
-        const gy = o.gy + (Pp[1] - 93) * .7;
+        const gy = o.gy + (Pp[1] - 93) * .7 * (1 - (o.gabs || 0));
         a.target = V.comb([0, gy, 0], pb.F, o.gf, pb.L, (i ? -1 : 1) * (o.gl || 15));
         a.handDir = V.comb([0, 0, 0], pb.F, 1, [0, 1, 0], o.gy > 120 ? .8 : 0);
         a.mix = o.gm == null ? 1 : o.gm;
       }
       inp.arms.push(a);
     }
-    if (o.gy != null) { const gy = o.gy + (Pp[1] - 93) * .7, gp = V.comb([0, gy, 0], pb.F, o.gf); grip = [gp[0], -gp[1]]; }
+    if (o.gy != null) { const gy = o.gy + (Pp[1] - 93) * .7 * (1 - (o.gabs || 0)), gp = V.comb([0, gy, 0], pb.F, o.gf); grip = [gp[0], -gp[1]]; }
     return { inp, grip, spread: 1 + Math.abs(feet[0].fwd - feet[1].fwd) / 110 };
   };
 

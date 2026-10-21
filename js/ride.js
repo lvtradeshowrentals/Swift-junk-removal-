@@ -308,14 +308,14 @@
   const carryY = (it) => it.gy;
   const itemTf = (type, g, sc, rot) => `translate(${f(g[0])} ${f(g[1])}) rotate(${rot || 0}) scale(${f(ITEM_K * (sc || 1))}) translate(0 ${f(SW.ITEM_DIM[type].h / 2)})`;
   const depthAngle = (dy, dx) => clamp(Math.atan2(dy * 1.6, Math.abs(dx) || 1), -.5, .5);
-  const HOIST_Y = 138, LAND = .60, GRIP = 27, HOIST_F_SOLO = 36;
+  const HOIST_Y = 138, LAND = .86, RELEASE = .52, GRIP = 27, HOIST_F_SOLO = 36;
 
   function planCrew() {
     const { S0, ts, H } = L, gp = L.groundPx;
     const rigX = (lx) => L.truckLeft + lx * ts;
     const nearY = (k) => gp + (10 + 3 * k) * ts;
     const nearS = (k) => ts * SW.depth(478 + 10 + 3 * k);
-    const WALK = 270, CARRY = 255, JOG = 380, JOGK = 1.7, DEP = .1, T_PICK = .32, T_HOIST = .58;
+    const WALK = 270, CARRY = 255, JOG = 380, JOGK = 1.7, DEP = .1, T_PICK = .55, T_HOIST = .92;
     const cmd = (a, b) => Math.hypot(b.x - a.x, (b.y - a.y) * 2) / (PXCM * (a.s + b.s) / 2);
     const segs = [[], [], []];
     /* they arrive from the left edge, already beside the pile: no time spent walking across the lawn */
@@ -328,14 +328,14 @@
     /* generic segments for one person */
     const walk = (c, P0, P1, dur, o) => {
       o = o || {};
-      const left = P1.x < P0.x, th0 = (o.th || 0) + c * 1.3, back = !!o.back, fade = !entered[c], sk = o.stride || 1; entered[c] = true;
+      const left = P1.x < P0.x, th0 = (o.th || 0) + c * 1.3, back = !!o.back, fade = !entered[c], sk = o.stride || 1.55; entered[c] = true;
       const seg = { t0: clock[c], t1: clock[c] + dur, ev(u) {
         const e = o.even ? lerp(u, u * u * (3 - 2 * u), .45) : u * u * (3 - 2 * u), x = lerp(P0.x, P1.x, e), y = lerp(P0.y, P1.y, e), s = lerp(P0.s, P1.s, u);
         const w = { x, y, s }, d = depthAngle(P1.y - P0.y, P1.x - P0.x);
         const yaw = o.yaw != null ? o.yaw : (left ? PI - d : d);
         const st = { x, y, s, vis: o.vis ? o.vis(u) : fade ? clamp(u * 7, 0, 1) : 1, carry: o.carry || '', pair: o.pair != null ? o.pair : -1, rot: o.rot || 0, sc: o.sc || 1,
           o: { yaw, theta: (back ? -1 : 1) * SW.crew.phase(cmd(P0, w), sk) + th0, amp: Math.pow(Math.sin(PI * u), .55), effort: o.effort || 0, stride: sk } };
-        if (o.carry || o.pair != null && o.pair >= 0) Object.assign(st.o, { carry: true, gy: o.gy, gf: GRIP, gl: 15, gm: 1, lean: o.pair >= 0 ? -3 : -8 });
+        if (o.carry || o.pair != null && o.pair >= 0) Object.assign(st.o, { carry: true, gy: o.gy, gf: GRIP, gl: 15, gm: 1, lean: o.pair >= 0 ? 0 : -8 });
         return st;
       } };
       segs[c].push(seg); clock[c] += dur; return seg;
@@ -390,13 +390,13 @@
           const st = { x: G.x, y: G.y, s: G.s, vis: 1, carry: '', pair: -1, rot: 0, sc, o: null };
           const turn = K === 2 && k === 0 ? smooth(0, .32, u) : 1;
           const yawNow = K === 2 ? (k === 0 ? lerp(yawOut, 0, easeInOut(turn)) : PI) : yawOut;
-          if (u < .40) { const w = u / .40; st.o = { yaw: yawNow, theta: 0, amp: 0, b: bMax * smooth(0, 1, w), gy: lowG, gf: GRIP, gl: 15, gm: smooth(.15, .85, w), headPitch: 6, effort: .3 * w }; }
+          if (u < .40) { const w = u / .40; st.o = { yaw: yawNow, theta: 0, amp: 0, b: bMax * smooth(0, 1, w), gy: lowG, gabs: 1, gf: GRIP, gl: 15, gm: smooth(.15, .85, w), headPitch: 6, effort: .3 * w }; }
           else {
             const r = (u - .40) / .60;
-            const yawK = K === 1 ? lerp(yawOut, yawBack, easeInOut(clamp((r - .1) / .8, 0, 1))) : yawNow;
+            const yawK = K === 1 ? lerp(yawOut, yawBack, easeInOut(clamp((r - .05) / .9, 0, 1))) : yawNow;
             if (K === 1) st.carry = ct; else st.pair = i;
             st.rot = rotC * smooth(0, 1, r);
-            st.o = { yaw: yawK, theta: 0, amp: 0, b: bMax * (1 - smooth(0, .85, r)), gy: lerp(lowG, gy, smooth(0, 1, r)), gf: GRIP, gl: 15, gm: 1, lean: K === 1 ? -8 * smooth(.3, 1, r) : 0, headLead: K === 1 ? -.18 * Math.sin(PI * r) : 0, carry: true, effort: K === 2 ? .6 : .25 };
+            st.o = { yaw: yawK, theta: 0, amp: 0, b: bMax * (1 - smooth(0, .85, r)), gy: lerp(lowG, gy, smooth(0, 1, r)), gabs: 1 - smooth(0, 1, r), gf: GRIP, gl: 15, gm: 1, lean: K === 1 ? -8 * smooth(.3, 1, r) : 0, headLead: K === 1 ? -.18 * Math.sin(PI * r) : 0, carry: true, effort: K === 2 ? .6 : .25 };
           }
           return st;
         } };
@@ -406,15 +406,15 @@
         /* hoist: raise it over the rail, let go, it falls into its slot */
         tHoist = clock[c];
         const hoistSeg = { t0: clock[c], t1: clock[c] + T_HOIST, hoist: true, ev(u) {
-          const l = smooth(0, .30, u), rel = smooth(.40, .66, u), turn = K === 1 ? easeInOut(clamp((u - .66) / .34, 0, 1)) : 0;
-          const held = u < .40;
+          const l = smooth(0, .46, u), rel = smooth(RELEASE, RELEASE + .2, u), turn = K === 1 ? easeInOut(clamp((u - .74) / .26, 0, 1)) : 0;
+          const held = u < RELEASE;
           const yaw = K === 1 ? lerp(.05, PI - .1, turn) : dir[k];
-          const o = { yaw, theta: 0, amp: 0, carry: true, gy: lerp(gy, HOIST_Y, l), gf: K === 1 ? lerp(GRIP, HOIST_F_SOLO, l) : GRIP, gl: 15, gm: held ? 1 : 1 - rel, lean: K === 1 ? lerp(-8, -3, l) * (1 - smooth(.5, 1, u)) : 0, headPitch: 10 * l * (1 - smooth(.4, .7, u)), effort: K === 2 ? .9 * (1 - smooth(.5, .8, u)) : .5 * (1 - smooth(.5, .8, u)) };
+          const o = { yaw, theta: 0, amp: 0, carry: true, gy: lerp(gy, HOIST_Y, l), gf: K === 1 ? lerp(GRIP, HOIST_F_SOLO, l) : GRIP, gl: 15, gm: held ? 1 : 1 - rel, lean: K === 1 ? lerp(-8, -3, l) * (1 - smooth(.5, 1, u)) : 0, headPitch: 10 * l * (1 - smooth(.5, .8, u)), effort: K === 2 ? .9 * (1 - smooth(.55, .85, u)) : .5 * (1 - smooth(.55, .85, u)) };
           return { x: Hs.x, y: Hs.y, s: Hs.s, vis: 1, carry: held && K === 1 ? ct : '', pair: held && K === 2 ? i : -1, rot: rotC, sc, o, u };
         } };
         segs[c].push(hoistSeg); clock[c] += T_HOIST;
         at[c] = Hs;
-        if (k === 0) info[i] = { c: ids[0], ids, K, tGrasp: tPick + .40 * T_PICK, tLand: tHoist + LAND * T_HOIST, tRelease: tHoist + .40 * T_HOIST, ct, hoist: hoistSeg, slot, slotC, sc, rotC, up: it.up || 0, gyH: HOIST_Y };
+        if (k === 0) info[i] = { c: ids[0], ids, K, tGrasp: tPick + .40 * T_PICK, tLand: tHoist + LAND * T_HOIST, tRelease: tHoist + RELEASE * T_HOIST, ct, hoist: hoistSeg, slot, slotC, sc, rotC, up: it.up || 0, gyH: HOIST_Y };
       });
       landOf[i] = tHoist + LAND * T_HOIST;
     });
