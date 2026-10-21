@@ -631,8 +631,7 @@
     if (mode === 'done') return;
     ps = 1; setMode('done'); disarm(); render(1, 0); setCue();
   }
-  function replay() { ps = 0; followSmReset(); setMode('idle'); arm(); render(0, 0); start(); }
-  function followSmReset() { followSm = null; }
+  function replay() { ps = 0; setMode('idle'); arm(); render(0, 0); start(); }
   function setCue() {
     const c = $('cueText'); if (!c) return;
     c.textContent = mode === 'done' ? 'Keep scrolling' : 'Scroll to watch';
@@ -711,7 +710,7 @@
       rt = setTimeout(() => {
         /* only a real change of shape (a rotation, a resized window) rebuilds the scene; a browser bar sliding in or out just re-fits it */
         if (Math.abs(innerWidth - lw) < 2 && Math.abs(innerHeight - lh) < .3 * lh) { applyLayout(); setTrackHeight(); render(ps, 0); return; }
-        lw = innerWidth; lh = innerHeight; cache = {}; followSm = null;
+        lw = innerWidth; lh = innerHeight; cache = {};
         const t = mode === 'playing' ? (performance.now() - t0) : 0;
         setup(false);
         if (mode === 'playing') t0 = performance.now() - ps * playMs();

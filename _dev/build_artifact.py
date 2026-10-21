@@ -13,6 +13,23 @@ for name in ['core', 'items', 'landmarks', 'bg', 'world', 'truck', 'trailer', 'h
     assert '</script' not in js
     s = s.replace(tag, '<script>\n' + js + '\n</script>')
 
+# photos dropped in img/ (garage, furniture, construction, commercial, estate) are resized and embedded
+import base64, io, glob, json
+photos = {}
+try:
+    from PIL import Image
+    for key in ['garage', 'furniture', 'construction', 'commercial', 'estate']:
+        hits = [p for p in glob.glob(os.path.join(ROOT, 'img', key + '.*')) if p.lower().endswith(('.jpg', '.jpeg', '.png', '.webp'))]
+        if not hits: continue
+        im = Image.open(hits[0]).convert('RGB')
+        im.thumbnail((1500, 1500))
+        buf = io.BytesIO(); im.save(buf, 'JPEG', quality=80, optimize=True, progressive=True)
+        photos[key] = 'data:image/jpeg;base64,' + base64.b64encode(buf.getvalue()).decode()
+except ImportError:
+    pass
+if photos:
+    s = s.replace('<script>' + chr(10) + '/* ====', '<script>window.SW_PHOTOS=' + json.dumps(photos) + ';</script>' + chr(10) + '<script>' + chr(10) + '/* ====', 1)
+    print('embedded photos:', list(photos))
 css = open(os.path.join(ROOT, 'css', 'sections.css'), encoding='utf-8').read()
 s = s.replace('<link rel="stylesheet" href="css/sections.css">', '<style>\n' + css + '\n</style>')
 links = ''.join(re.findall(r'<link[^>]*>\n?', s))

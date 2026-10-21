@@ -1,163 +1,103 @@
 /* ============================================================================
-   Services showroom: five illustrated jobs in a pinned stage. Scrolling opens the
-   categories one after another (the one above collapses as the next opens) and
-   scrolling back up reverses it. Clicking a category scrolls to its position.
+   What we remove: a deck of five tall job cards. It scrolls sideways on its own
+   track (native swipe and snap, never the page), and as cards slide through the
+   centre they lean, scale and light up, the scene inside each moves at its own
+   depth, and a card's pile drops into place the first time it comes into focus.
    ========================================================================== */
 (function (SW) {
   'use strict';
-  const $ = SW.$;
-  const KEYS = ['garage', 'furniture', 'construction', 'commercial', 'estate'];
+  const $ = SW.$, clamp = SW.clamp;
 
   SW.services = {
     init() {
-      const stage = $('svcStage');
-      if (!stage || !SW.scenes) return;
+      const track = $('dkTrack');
+      if (!track || !SW.scenes) return;
       const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       $('spriteDefs').insertAdjacentHTML('beforeend', SW.scenes.defs());
-
-      const scenesEl = $('svcScenes'), pinsEl = $('svcPins'), tag = $('svcTag'), list = $('svcList');
-      const rows = Array.from(list.querySelectorAll('.svc'));
-      const tabs = rows.map((r) => r.querySelector('.svc-tab'));
-      const titles = tabs.map((t) => t.querySelector('span').textContent);
-      const scenes = KEYS.map((k) => {
-        const d = document.createElement('div');
-        d.className = 'scene';
-        d.innerHTML = '<svg viewBox="0 0 800 680" preserveAspectRatio="xMidYMid slice" focusable="false" aria-hidden="true">' + SW.scenes.build[k]() + '</svg>';
-        scenesEl.appendChild(d);
-        return d;
+      const cards = Array.from(track.querySelectorAll('.dk-card'));
+      const dots = Array.from($('dkDots').querySelectorAll('button'));
+      /* a real photo (img/<job>.jpg, or embedded by the build) replaces the illustrated scene when there is one */
+      const sceneOf = (key) => '<div class="scene on"><svg viewBox="0 0 800 680" preserveAspectRatio="xMidYMax slice" focusable="false" aria-hidden="true">' + SW.scenes.build[key]() + '</svg></div>';
+      const arts = cards.map((c) => {
+        const art = c.querySelector('.dk-art'), key = c.getAttribute('data-key'), alt = (c.querySelector('h3') || {}).textContent || '';
+        const embedded = window.SW_PHOTOS && window.SW_PHOTOS[key];
+        const img = new Image();
+        img.alt = alt; img.decoding = 'async'; img.draggable = false;
+        img.onload = () => { art.classList.add('photo'); };
+        img.onerror = () => { art.innerHTML = sceneOf(key); arts[cards.indexOf(c)] = art.firstChild; };
+        art.innerHTML = '<div class="scene on"></div>'; art.firstChild.appendChild(img);
+        img.src = embedded || 'img/' + key + '.jpg';
+        return art.firstChild;
       });
 
-      let cur = 0, started = false, pending = null, rz = 0;
-      const track = $('svcTrack'), N = KEYS.length, STEP = .5;       /* each category gets half a screen of scroll */
-      let pinned = !reduce && window.matchMedia && !matchMedia('(max-height: 440px)').matches;
-
-      function setPins(i, delay) {
-        pinsEl.innerHTML = SW.scenes.pins[KEYS[i]].map((p, n) =>
-          `<div class="pin" style="--px:${(p[1] / 8).toFixed(2)};--py:${(p[2] / 6.8).toFixed(2)};--stem:${p[3]};--pd:${(delay + n * .09).toFixed(2)}s"><i></i><span class="pin-stem"></span><span class="pin-label" style="--tx:${p[4] === 'l' ? '-14px' : p[4] === 'r' ? 'calc(-100% + 14px)' : '-50%'}">${p[0]}</span></div>`).join('');
-        spread();
-      }
-      /* labels must never sit on top of each other or run off the picture: raise a label's stem until its box is clear of every one placed before it, and nudge it back inside the frame */
-      function spread() {
-        const run = () => {
-          const fr = stage.getBoundingClientRect(), H = fr.height || 1, k = 680 / H, placed = [];
-          Array.from(pinsEl.querySelectorAll('.pin')).forEach((pin) => {
-            const lab = pin.querySelector('.pin-label');
-            let stem = +pin.style.getPropertyValue('--stem') || 40, sx = 0;
-            for (let t = 0; t < 8; t++) {
-              pin.style.setProperty('--stem', stem); lab.style.setProperty('--sx', sx + 'px');
-              const r = lab.getBoundingClientRect();
-              if (r.left < fr.left + 8) { sx += fr.left + 8 - r.left; continue; }
-              if (r.right > fr.right - 8) { sx -= r.right - (fr.right - 8); continue; }
-              const hit = placed.find((q) => r.left < q.right + 5 && r.right > q.left - 5 && r.top < q.bottom + 4 && r.bottom > q.top - 4);
-              if (!hit) break;
-              stem += (r.bottom - hit.top + 6) * k;
-            }
-            placed.push(lab.getBoundingClientRect());
-          });
-        };
-        requestAnimationFrame(() => requestAnimationFrame(run));
-      }
-      function rowState(i) {
-        rows.forEach((r, j) => { r.classList.toggle('on', j === i); tabs[j].setAttribute('aria-expanded', j === i ? 'true' : 'false'); });
-        tag.textContent = titles[i];
-      }
-      /* settle whatever wipe is in flight so a fast scroll never leaves two scenes half-shown */
-      function settle() {
-        if (!pending) return;
-        const p = pending; pending = null;
-        scenes.forEach((s, j) => { s.classList.toggle('on', j === p); s.classList.remove('in'); });
-        stage.classList.remove('wiping');
-      }
-      let softT = 0;
-      function soft(i) {
-        settle(); clearTimeout(softT);
-        const prev = cur; cur = i; rowState(i);
-        const next = scenes[i];
-        next.classList.add('on', 'soft', 'pop', 'fadein');
-        pinsEl.innerHTML = ''; setPins(i, .02);
-        softT = setTimeout(() => { scenes.forEach((s2, j) => { if (j !== cur) s2.classList.remove('on', 'pop', 'soft', 'fadein'); }); scenes[cur].classList.remove('fadein'); }, 380);
-        void prev;
-      }
-      function show(i, instant, quiet) {
-        if (i === cur && started) return;
-        if (quiet && started && !reduce) { soft(i); return; }
-        settle();
-        cur = i;
-        rowState(i);
-        const next = scenes[i];
-        if (!started || instant || reduce) {
-          started = true;
-          scenes.forEach((s, j) => { s.classList.toggle('on', j === i); s.classList.remove('in', 'pop'); });
-          next.style.setProperty('--wd', '.15s'); void next.offsetWidth; next.classList.add('pop');
-          setPins(i, .5); return;
+      let cur = -1, raf = 0, drag = null;
+      /* each card's resting scroll position. On phones every card can reach the centre; on a wide
+         screen the deck ends flush with the content edge, so the stops are spread evenly over the
+         scroll range and the last card is in focus when the deck is scrolled to its end */
+      const stops = () => {
+        const pl = cards[0].offsetLeft, nat = cards.map((c) => c.offsetLeft - pl), max = track.scrollWidth - track.clientWidth;
+        const k = nat[nat.length - 1] > max + 2 ? max / nat[nat.length - 1] : 1;
+        return nat.map((v) => v * k);
+      };
+      /* where the deck is, as a card index with a fraction */
+      const pos = () => {
+        const s = stops(), x = track.scrollLeft;
+        if (x <= s[0]) return 0;
+        for (let i = 1; i < s.length; i++) if (x <= s[i]) return i - 1 + (x - s[i - 1]) / Math.max(1, s[i] - s[i - 1]);
+        return s.length - 1;
+      };
+      function measure() {
+        const f = pos(), best = clamp(Math.round(f), 0, cards.length - 1);
+        cards.forEach((card, i) => {
+          const dd = clamp(i - f, -2, 2);
+          card.style.setProperty('--d', dd.toFixed(3));
+          card.style.setProperty('--ad', Math.abs(dd).toFixed(3));
+        });
+        if (best !== cur) {
+          cur = best;
+          cards.forEach((card, i) => { card.classList.toggle('on', i === cur); card.setAttribute('aria-current', i === cur ? 'true' : 'false'); });
+          dots.forEach((b, i) => { b.classList.toggle('on', i === cur); b.setAttribute('aria-current', i === cur ? 'true' : 'false'); });
+          /* the pile drops in the first time a card comes into focus */
+          if (!arts[cur].classList.contains('pop')) { arts[cur].style.setProperty('--wd', '.12s'); arts[cur].classList.add('pop'); }
+          $('dkPrev').disabled = cur === 0; $('dkNext').disabled = cur === cards.length - 1;
         }
-        next.classList.remove('pop'); next.style.setProperty('--wd', '.5s');
-        next.classList.add('in');
-        pending = i;
-        pinsEl.innerHTML = '';
-        stage.classList.remove('wiping'); void stage.offsetWidth; stage.classList.add('wiping');
-        const done = (e) => {
-          if (e && e.animationName !== 'svcWipe') return;
-          stage.removeEventListener('animationend', done);
-          if (pending !== i) return;
-          pending = null;
-          scenes.forEach((s, j) => { s.classList.toggle('on', j === i); if (j !== i) s.classList.remove('pop'); s.classList.remove('in'); });
-          stage.classList.remove('wiping');
-        };
-        stage.addEventListener('animationend', done);
-        next.classList.add('pop');
-        setPins(i, 1.05);
       }
+      const queue = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; measure(); }); };
+      track.addEventListener('scroll', queue, { passive: true });
+      window.addEventListener('resize', queue);
 
-      /* scroll drives it: the pinned showroom opens category 1, then 2 (closing 1), and so on; scrolling up reverses it */
-      let lockW = 0, lockH = 0;
-      function layout(force) {
-        if (!pinned) { track.style.height = ''; track.classList.remove('is-pinned'); return; }
-        const w = innerWidth, h = innerHeight;
-        if (!force && lockW === w && Math.abs(h - lockH) < 160) return;
-        lockW = w; lockH = h;
-        track.classList.add('is-pinned');
-        track.style.height = Math.round(h + (N - 1) * STEP * h) + 'px';
-      }
-      function onScroll() {
-        if (!pinned || !started) return;
-        const r = track.getBoundingClientRect(), span = (N - 1) * STEP * lockH, p = Math.min(1, Math.max(0, -r.top / Math.max(1, span)));
-        /* a dead band either side of each boundary stops the category flipping back and forth while the page rests on the line */
-        const f = p * (N - 1), i = Math.abs(f - cur) > .62 ? Math.min(N - 1, Math.max(0, Math.round(f))) : cur;
-        if (i !== cur) show(i, false, true);
-      }
-      let q = false;
-      const queue = () => { if (!q) { q = true; requestAnimationFrame(() => { q = false; onScroll(); }); } };
+      const go = (i) => {
+        i = clamp(i, 0, cards.length - 1);
+        track.scrollTo({ left: stops()[i], behavior: reduce ? 'auto' : 'smooth' });
+      };
+      /* wide screens have no CSS snap: once a trackpad swipe settles, ease to the nearest card */
+      let settle = 0;
+      track.addEventListener('scroll', () => {
+        clearTimeout(settle);
+        if (drag || getComputedStyle(track).scrollSnapType.indexOf('mandatory') > -1) return;
+        settle = setTimeout(() => { const f = pos(); if (Math.abs(f - Math.round(f)) > .02) go(Math.round(f)); }, 160);
+      }, { passive: true });
+      $('dkPrev').addEventListener('click', () => go(cur - 1));
+      $('dkNext').addEventListener('click', () => go(cur + 1));
+      dots.forEach((b, i) => b.addEventListener('click', () => go(i)));
+      cards.forEach((c, i) => c.addEventListener('click', (e) => { if (i !== cur && !e.target.closest('a')) { e.preventDefault(); go(i); } }));
+      track.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); } if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); } });
 
-      tabs.forEach((t, i) => {
-        t.addEventListener('click', () => {
-          if (pinned) {
-            /* jump to the scroll position that opens this category */
-            const r = track.getBoundingClientRect(), span = (N - 1) * STEP * lockH;
-            const y = window.pageYOffset + r.top + (i / (N - 1)) * span + 2 - (i === 0 ? 0 : 0);
-            window.scrollTo({ top: i === 0 ? Math.max(0, window.pageYOffset + r.top) : y, behavior: 'smooth' });
-          } else {
-            if (i !== cur) show(i);
-            const r = stage.getBoundingClientRect();
-            if (innerWidth <= 900 && (r.top < 70 || r.bottom > innerHeight)) window.scrollTo({ top: window.pageYOffset + r.top - 84, behavior: 'smooth' });
-          }
-        });
-        t.addEventListener('keydown', (e) => {
-          const d = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0;
-          if (d) { e.preventDefault(); tabs[(i + d + tabs.length) % tabs.length].focus(); }
-        });
+      /* a mouse can drag the deck too (touch and trackpads already swipe natively) */
+      track.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('a,button')) return; drag = { x: e.clientX, l: track.scrollLeft, moved: false }; track.classList.add('grabbing'); });
+      window.addEventListener('pointermove', (e) => { if (!drag) return; const dx = e.clientX - drag.x; if (Math.abs(dx) > 4) drag.moved = true; track.scrollLeft = drag.l - dx; });
+      window.addEventListener('pointerup', () => {
+        if (!drag) return; track.classList.remove('grabbing');
+        const moved = drag.moved; drag = null;
+        if (moved) go(Math.round(pos()));
       });
-      layout(true);
-      window.addEventListener('resize', () => { layout(); queue(); });
-      window.addEventListener('scroll', queue, { passive: true });
 
-      /* nothing plays until the showroom is on screen, so the first pile drops in front of the visitor */
-      rowState(0);
-      scenes[0].classList.add('on');
-      if (!('IntersectionObserver' in window) || reduce) { started = true; scenes[0].classList.add('pop'); setPins(0, 0); return; }
-      new IntersectionObserver((entries) => {
-        entries.forEach((e) => { if (e.isIntersecting && !started) { show(0, true); onScroll(); } });
-      }, { threshold: .2 }).observe(stage);
+      /* start on the first card, centred */
+      requestAnimationFrame(() => { track.scrollLeft = 0; measure(); });
+      if ('IntersectionObserver' in window && !reduce) {
+        const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { io.disconnect(); arts[0].classList.remove('pop'); void arts[0].offsetWidth; arts[0].classList.add('pop'); } }), { threshold: .35 });
+        io.observe(track);
+      }
     },
   };
 })(window.SW);

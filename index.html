@@ -548,82 +548,73 @@
   </div>
 </section>
 
-<section class="sheet sheet--day services" id="services" data-tone="day" aria-labelledby="svc-h">
-  <div class="wrap">
-    <header class="svc-head">
-      <h2 class="h2" id="svc-h" data-reveal>What we remove.</h2>
-      <p class="lede" data-reveal style="--d:.08s">From a single couch to a whole house. If you can point to it, we can probably haul it.</p>
-    </header>
+<section class="sheet sheet--dusk services" id="services" data-tone="night" aria-labelledby="svc-h">
+  <div class="wrap dk-head">
+    <h2 class="h2" id="svc-h" data-reveal>What we remove.</h2>
+    <p class="lede" data-reveal style="--d:.08s">From a single couch to a whole house. Swipe through the jobs we do every week.</p>
+  </div>
 
-    <div class="svc-track" id="svcTrack">
-    <div class="showroom" id="showroom" data-reveal style="--d:.1s">
-      <div class="stage-card" id="svcStage" aria-hidden="true">
-        <div class="scenes" id="svcScenes"></div>
-        <div class="pins" id="svcPins"></div>
-        <div class="wipe-chev"><svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false"><polyline points="0,0 47,50 0,100" fill="none" stroke="#7a4630" stroke-width="9" vector-effect="non-scaling-stroke"/><polyline points="26,0 73,50 26,100" fill="none" stroke="#c4632d" stroke-width="9" vector-effect="non-scaling-stroke"/><polyline points="53,0 100,50 53,100" fill="none" stroke="#fff" stroke-width="9" vector-effect="non-scaling-stroke"/></svg></div>
-        <div class="stage-tag"><i></i><span id="svcTag">Garage and home cleanouts</span></div>
-      </div>
-
-      <ol class="svc-list" id="svcList">
-        <li class="svc on">
-          <h3><button type="button" class="svc-tab" id="svc-t0" aria-expanded="true" aria-controls="svc-p0">
-            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-18 0) scale(.58)"><use href="#it-boxStack"/></g><g transform="translate(22 0) scale(.5)"><use href="#it-bike"/></g></svg>
-            <span>Garage and home cleanouts</span></button></h3>
-          <div class="svc-panel" id="svc-p0" role="region" aria-labelledby="svc-t0"><div class="svc-panel-in">
+  <div class="deck" id="deck" data-reveal style="--d:.12s">
+    <ul class="dk-track" id="dkTrack" aria-label="What we remove" tabindex="0">
+        <li class="dk-card" data-key="garage" aria-roledescription="slide" aria-label="1 of 5: Garage and home cleanouts">
+          <div class="dk-art" aria-hidden="true"></div>
+          <div class="dk-body">
+            <span class="dk-n">01<i>/ 05</i></span>
+            <h3>Garage and home cleanouts</h3>
             <p>Garages, attics, basements, sheds and spare rooms. We carry it out and haul it away.</p>
-            <ul class="svc-chips"><li>Boxes and bins</li><li>Bikes</li><li>Old mattresses</li><li>Storage</li></ul>
-            <a class="btn btn-primary" href="#quote" data-service="garage">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-          </div></div>
-          <i class="svc-prog" aria-hidden="true"></i>
+            <ul class="dk-chips"><li>Boxes and bins</li><li>Bikes</li><li>Old mattresses</li><li>Storage</li></ul>
+            <a class="dk-cta" href="#quote" data-service="garage">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
         </li>
-        <li class="svc">
-          <h3><button type="button" class="svc-tab" id="svc-t1" aria-expanded="false" aria-controls="svc-p1">
-            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-14 0) scale(.46)"><use href="#it-couch"/></g><g transform="translate(32 0) scale(.4)"><use href="#it-fridge"/></g></svg>
-            <span>Furniture and appliances</span></button></h3>
-          <div class="svc-panel" id="svc-p1" role="region" aria-labelledby="svc-t1"><div class="svc-panel-in">
+        <li class="dk-card" data-key="furniture" aria-roledescription="slide" aria-label="2 of 5: Furniture and appliances">
+          <div class="dk-art" aria-hidden="true"></div>
+          <div class="dk-body">
+            <span class="dk-n">02<i>/ 05</i></span>
+            <h3>Furniture and appliances</h3>
             <p>Couches, mattresses, fridges, TVs and exercise equipment. From inside the house or from the curb.</p>
-            <ul class="svc-chips"><li>Couches</li><li>Mattresses</li><li>Refrigerators</li><li>TVs</li></ul>
-            <a class="btn btn-primary" href="#quote" data-service="furniture">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-          </div></div>
-          <i class="svc-prog" aria-hidden="true"></i>
+            <ul class="dk-chips"><li>Couches</li><li>Mattresses</li><li>Refrigerators</li><li>TVs</li></ul>
+            <a class="dk-cta" href="#quote" data-service="furniture">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
         </li>
-        <li class="svc">
-          <h3><button type="button" class="svc-tab" id="svc-t2" aria-expanded="false" aria-controls="svc-p2">
-            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-12 0) scale(.42)"><use href="#it-lumber"/></g><g transform="translate(30 0) scale(.66)"><use href="#it-bags"/></g></svg>
-            <span>Construction cleanup</span></button></h3>
-          <div class="svc-panel" id="svc-p2" role="region" aria-labelledby="svc-t2"><div class="svc-panel-in">
+        <li class="dk-card" data-key="construction" aria-roledescription="slide" aria-label="3 of 5: Construction cleanup">
+          <div class="dk-art" aria-hidden="true"></div>
+          <div class="dk-body">
+            <span class="dk-n">03<i>/ 05</i></span>
+            <h3>Construction cleanup</h3>
             <p>Drywall, lumber, tile, cabinets and demo debris from remodels and builds.</p>
-            <ul class="svc-chips"><li>Drywall</li><li>Lumber</li><li>Cabinets</li><li>Debris bags</li></ul>
-            <a class="btn btn-primary" href="#quote" data-service="construction">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-          </div></div>
-          <i class="svc-prog" aria-hidden="true"></i>
+            <ul class="dk-chips"><li>Drywall</li><li>Lumber</li><li>Cabinets</li><li>Debris bags</li></ul>
+            <a class="dk-cta" href="#quote" data-service="construction">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
         </li>
-        <li class="svc">
-          <h3><button type="button" class="svc-tab" id="svc-t3" aria-expanded="false" aria-controls="svc-p3">
-            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-20 0) scale(.5)"><use href="#it-desk"/></g><g transform="translate(14 0) scale(.55)"><use href="#it-chair"/></g><g transform="translate(40 0) scale(.55)"><use href="#it-filing"/></g></svg>
-            <span>Commercial and property</span></button></h3>
-          <div class="svc-panel" id="svc-p3" role="region" aria-labelledby="svc-t3"><div class="svc-panel-in">
+        <li class="dk-card" data-key="commercial" aria-roledescription="slide" aria-label="4 of 5: Commercial and property">
+          <div class="dk-art" aria-hidden="true"></div>
+          <div class="dk-body">
+            <span class="dk-n">04<i>/ 05</i></span>
+            <h3>Commercial and property</h3>
             <p>Offices, storefronts, apartment turnovers and vacant units. One-time or recurring.</p>
-            <ul class="svc-chips"><li>Desks and chairs</li><li>File cabinets</li><li>Monitors</li><li>Turnovers</li></ul>
-            <a class="btn btn-primary" href="#quote" data-service="commercial">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-          </div></div>
-          <i class="svc-prog" aria-hidden="true"></i>
+            <ul class="dk-chips"><li>Desks and chairs</li><li>File cabinets</li><li>Monitors</li><li>Turnovers</li></ul>
+            <a class="dk-cta" href="#quote" data-service="commercial">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
         </li>
-        <li class="svc">
-          <h3><button type="button" class="svc-tab" id="svc-t4" aria-expanded="false" aria-controls="svc-p4">
-            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-22 0) scale(.52)"><use href="#it-dresser"/></g><g transform="translate(18 0) scale(.52)"><use href="#it-armchair"/></g></svg>
-            <span>Estate and move-out</span></button></h3>
-          <div class="svc-panel" id="svc-p4" role="region" aria-labelledby="svc-t4"><div class="svc-panel-in">
+        <li class="dk-card" data-key="estate" aria-roledescription="slide" aria-label="5 of 5: Estate and move-out">
+          <div class="dk-art" aria-hidden="true"></div>
+          <div class="dk-body">
+            <span class="dk-n">05<i>/ 05</i></span>
+            <h3>Estate and move-out</h3>
             <p>Full-house cleanouts for estates, sales and move-outs, on your timeline.</p>
-            <ul class="svc-chips"><li>Dressers</li><li>Armchairs</li><li>Lamps and frames</li><li>Whole homes</li></ul>
-            <a class="btn btn-primary" href="#quote" data-service="estate">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-          </div></div>
-          <i class="svc-prog" aria-hidden="true"></i>
+            <ul class="dk-chips"><li>Dressers</li><li>Armchairs</li><li>Lamps and frames</li><li>Whole homes</li></ul>
+            <a class="dk-cta" href="#quote" data-service="estate">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
         </li>
-      </ol>
+    </ul>
+    <div class="dk-ui wrap">
+      <button class="dk-arrow" id="dkPrev" type="button" aria-label="Previous service"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <ol class="dk-dots" id="dkDots" aria-label="Choose a service"><li><button type="button" aria-label="Garage and home cleanouts"><span>Garage</span></button></li><li><button type="button" aria-label="Furniture and appliances"><span>Furniture</span></button></li><li><button type="button" aria-label="Construction cleanup"><span>Construction</span></button></li><li><button type="button" aria-label="Commercial and property"><span>Commercial</span></button></li><li><button type="button" aria-label="Estate and move-out"><span>Estate</span></button></li></ol>
+      <button class="dk-arrow" id="dkNext" type="button" aria-label="Next service"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
-    </div>
+  </div>
 
+  <div class="wrap">
     <aside class="svc-help" data-reveal>
       <svg class="svc-help-marks" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg>
       <div>
