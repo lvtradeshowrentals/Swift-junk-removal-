@@ -6,7 +6,7 @@
 (function (SW) {
   'use strict';
 
-  /* ZIP -> which part of the valley it is. Placeholder coverage until the real service area is confirmed. */
+  /* ZIP -> which part of the valley it is. The valley ZIP ranges we serve. */
   const HENDERSON = ['89002', '89011', '89012', '89014', '89015', '89044', '89052', '89053', '89074'];
   const NORTH_LV = ['89030', '89031', '89032', '89081', '89084', '89085', '89086', '89087'];
   SW.zone = function (raw) {

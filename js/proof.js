@@ -1,5 +1,5 @@
 /* ============================================================================
-   Proof: a before/after slider. The art is a placeholder: one garage drawn twice,
+   Proof: a before/after slider. The art is an illustration: one garage drawn twice,
    packed and then cleared with the Swift truck waiting outside. Real photos can
    replace either layer's <svg> without touching the slider.
    ========================================================================== */

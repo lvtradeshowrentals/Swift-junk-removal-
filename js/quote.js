@@ -139,17 +139,28 @@
 
   /* ---------- send ---------- */
   function send() {
-    const endpoint = form.getAttribute('data-endpoint');
+    const endpoint = form.getAttribute('data-endpoint'), fail = $('sendFail'), btn = nextBtn;
     const done = () => {
+      fail.hidden = true;
       $('doneNo').textContent = S.no;
-      $('demoNote').style.display = endpoint ? 'none' : '';
       card.classList.add('sent'); loader.classList.add('sent'); loadCap.textContent = "Loaded. We'll text you the price.";
       const s = $('success'); s.focus({ preventScroll: true });
       if (card.getBoundingClientRect().top < 70) card.scrollIntoView({ block: 'start', behavior: 'smooth' });
     };
-    if (!endpoint) { done(); return; }
-    const fd = new FormData(form); fd.append('reference', S.no);
-    fetch(endpoint, { method: 'POST', body: fd, headers: { Accept: 'application/json' } }).then(done).catch(done);
+    const failed = () => {
+      btn.disabled = false; btn.classList.remove('busy'); fail.hidden = false;
+      fail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    };
+    const fd = new FormData(form);
+    fd.append('reference', S.no);
+    fd.append('_subject', 'New quote request ' + S.no + ' (Swift Junk Removal)');
+    fd.append('_template', 'table'); fd.append('_captcha', 'false');
+    fd.append('services', Array.from(S.sel).map((k) => SERVICES[k]).join(', '));
+    btn.disabled = true; btn.classList.add('busy');
+    /* a request only counts as sent when the inbox service says so; anything else tells the visitor and offers the phone */
+    fetch(endpoint, { method: 'POST', body: fd, headers: { Accept: 'application/json' } })
+      .then((r) => r.json().catch(() => ({})).then((j) => { if (r.ok && j.success !== 'false' && j.success !== false) { btn.disabled = false; btn.classList.remove('busy'); done(); } else failed(); }))
+      .catch(failed);
   }
   function reset() {
     form.reset(); S.sel.clear(); S.files.forEach((f) => URL.revokeObjectURL(f._url)); S.files = []; renderThumbs();
@@ -158,7 +169,7 @@
     form.querySelectorAll('.err').forEach((e) => { e.textContent = ''; });
     $('zipNote').textContent = ''; $('zipNote').className = 'zip-note';
     S.no = orderNo(); $('woNo').textContent = S.no;
-    card.classList.remove('sent'); loader.classList.remove('sent'); S.step = 1;
+    card.classList.remove('sent'); loader.classList.remove('sent'); $('sendFail').hidden = true; S.step = 1;
     panes.forEach((p, i) => { p.classList.toggle('on', i === 0); p.classList.remove('back'); p.inert = i !== 0; });
     setStep(1, -1); updateSummary(); updateLoader();
   }

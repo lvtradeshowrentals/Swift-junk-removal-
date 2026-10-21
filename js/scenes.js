@@ -2,7 +2,7 @@
    Daytime illustrations for the Services showroom. Five scenes, one per service,
    each a different building with that job's real pile out front (the same item art
    the ride uses) and the Swift truck waiting on the right. Canvas is 800 x 600.
-   Placeholder art: swap any scene for a real photo later without touching the layout.
+   Any scene can be swapped for a real photo without touching the layout.
    ========================================================================== */
 (function (SW) {
   'use strict';

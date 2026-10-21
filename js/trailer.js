@@ -101,7 +101,7 @@
     s += `<use href="#mark-light" x="${BOX_L + 36}" y="${top + 16}" width="44" height="27.5"/><rect x="${BOX_L + 88}" y="${top + 16}" width="1.6" height="26" fill="#0f1a33" opacity=".3"/>`;
     s += `<text x="${BOX_L + 98}" y="${top + 34}" ${T_} font-weight="700" font-size="23" letter-spacing="2" fill="#0f1a33">SWIFT</text>`;
     s += `<text x="${BOX_L + 99}" y="${top + 43}" ${T_} font-weight="600" font-size="6.4" letter-spacing="2.9" fill="#c4632d">JUNK REMOVAL</text>`;
-    s += `<text x="${BOX_R - 30}" y="${top + 30}" text-anchor="end" ${T_} font-weight="700" font-size="13" fill="#0f1a33">(702) 000-0000</text><text x="${BOX_R - 30}" y="${top + 41}" text-anchor="end" ${T_} font-weight="500" font-size="7.4" letter-spacing=".4" fill="#33405f">Las Vegas &amp; Henderson  ·  Free quotes</text>`;
+    s += `<text x="${BOX_R - 30}" y="${top + 30}" text-anchor="end" ${T_} font-weight="700" font-size="13" fill="#0f1a33">(702) 929-6544</text><text x="${BOX_R - 30}" y="${top + 41}" text-anchor="end" ${T_} font-weight="500" font-size="7.4" letter-spacing=".4" fill="#33405f">Las Vegas &amp; Henderson  ·  Free quotes</text>`;
     /* corner posts and the rear lights */
     s += `<rect x="${BOX_L - 5}" y="${top - 3}" width="9" height="${h + 14}" rx="2" fill="#10131d"/><rect x="${BOX_R - 3}" y="${top - 3}" width="9" height="${h + 14}" rx="2" fill="#10131d"/>`;
     s += `<rect x="${BOX_L - 4}" y="${DECK - 34}" width="7" height="22" rx="2" fill="#5c0f0c"/><rect x="${BOX_L - 3}" y="${DECK - 33}" width="5" height="20" rx="1.5" fill="#cf2a21"/><rect x="${BOX_L - 3}" y="${DECK - 33}" width="2" height="20" fill="#ff6e5c" opacity=".8"/>`;
