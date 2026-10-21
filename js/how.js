@@ -10,19 +10,19 @@
   const PI = Math.PI;
 
   /* ---------- a pile of junk seen from a phone: used for the viewfinder and the sent photo ---------- */
+  /* the photo: a tall stack of junk shot close, in the phone's own portrait shape, so the pile is what fills the frame. Used by the viewfinder and the sent picture. */
   function pileArt() {
     return `<g id="pileArt">
-      <rect width="240" height="300" fill="#dfe9f4"/>
-      <rect y="0" width="240" height="190" fill="url(#svSky)"/>
-      <rect y="70" width="240" height="124" fill="#ecd9c2"/><rect y="70" width="240" height="124" fill="url(#svShade)"/>
-      <rect x="28" y="96" width="62" height="54" fill="url(#svGlass)" stroke="#fbf6ec" stroke-width="5"/><path d="M59 96 V150 M28 123 H90" stroke="#fbf6ec" stroke-width="3"/>
-      <rect y="190" width="240" height="110" fill="#d9d2c4"/><path d="M0 190 H240" stroke="#bfb6a4" stroke-width="2"/>
-      <ellipse cx="120" cy="272" rx="104" ry="9" fill="#1b2440" opacity=".18"/>
-      <g transform="translate(70 270) scale(.78)"><use href="#it-couch"/></g>
-      <g transform="translate(72 214) rotate(-4) scale(.62)"><use href="#it-mattress"/></g>
-      <g transform="translate(158 268) scale(.74)"><use href="#it-boxStack"/></g>
-      <g transform="translate(204 268) scale(.7)"><use href="#it-lamp"/></g>
-      <g transform="translate(124 278) scale(.6)"><use href="#it-box"/></g>
+      <rect width="90" height="170" fill="#dfe9f4"/>
+      <rect width="90" height="100" fill="url(#svSky)"/>
+      <rect y="14" width="90" height="108" fill="#e9d3bb"/><rect y="14" width="90" height="108" fill="url(#svShade)"/>
+      <path d="M0 30 H90 M0 50 H90 M0 70 H90 M0 90 H90 M0 110 H90" stroke="#d3b99c" stroke-width="1" opacity=".5"/>
+      <rect y="122" width="90" height="48" fill="#d6cdbc"/><path d="M0 122 H90" stroke="#b9ad98" stroke-width="2"/>
+      <ellipse cx="45" cy="141" rx="44" ry="5" fill="#1b2440" opacity=".24"/>
+      <g transform="translate(45 140) scale(.56)"><use href="#it-couch"/></g>
+      <g transform="translate(46 97) rotate(-3) scale(.5)"><use href="#it-mattress"/></g>
+      <g transform="translate(27 86) scale(.52)"><use href="#it-boxStack"/></g>
+      <g transform="translate(66 86) scale(.54)"><use href="#it-lamp"/></g>
     </g>`;
   }
 
@@ -102,7 +102,7 @@
   function update(force) {
     if (!R.ready) return;
     const rb = $('route').getBoundingClientRect();
-    const y = window.innerHeight * .6 - rb.top;
+    const y = window.innerHeight * .74 - rb.top;
     const end = R.stopY[R.stopY.length - 1] + 40;
     const len = R.reduce ? R.stopLen[R.stopLen.length - 1] : lenAtY(clamp(y, 0, end));
     if (!force && Math.abs(len - lastLen) < .4) return;

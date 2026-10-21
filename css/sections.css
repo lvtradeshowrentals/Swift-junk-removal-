@@ -417,14 +417,21 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 .v1 { display: grid; grid-template-columns: 31% minmax(0, 1fr); align-items: center; gap: 6%; padding: 6%; }
 .phone { height: 100%; aspect-ratio: 9 / 17; justify-self: center; padding: 6px; border-radius: 28px; background: #04070f; box-shadow: inset 0 0 0 2px #2a3550, 0 24px 40px -18px #000; }
 .screen { position: relative; width: 100%; height: 100%; border-radius: 22px; overflow: hidden; background: #9db9d6; }
-.vf { display: block; width: 100%; height: 100%; }
-.corner { position: absolute; width: 16px; height: 16px; border: 0 solid var(--copper-500); opacity: .95; }
-.corner.tl { left: 12px; top: 14px; border-width: 2.5px 0 0 2.5px; } .corner.tr { right: 12px; top: 14px; border-width: 2.5px 2.5px 0 0; }
-.corner.bl { left: 12px; bottom: 54px; border-width: 0 0 2.5px 2.5px; } .corner.br { right: 12px; bottom: 54px; border-width: 0 2.5px 2.5px 0; }
+.vf { display: block; width: 100%; height: 100%; filter: blur(3.2px); transform: scale(1.05); }
+@property --bl { syntax: '<percentage>'; inherits: true; initial-value: 8%; }
+@property --bt { syntax: '<percentage>'; inherits: true; initial-value: 10%; }
+@property --br { syntax: '<percentage>'; inherits: true; initial-value: 8%; }
+@property --bb { syntax: '<percentage>'; inherits: true; initial-value: 22%; }
+.screen { --bl: 8%; --bt: 10%; --br: 8%; --bb: 22%; }
+.corner { position: absolute; width: 15px; height: 15px; border: 0 solid #fff; opacity: .95; filter: drop-shadow(0 0 3px rgba(0, 0, 0, .45)); }
+.corner.tl { left: var(--bl); top: var(--bt); border-width: 2.5px 0 0 2.5px; } .corner.tr { right: var(--br); top: var(--bt); border-width: 2.5px 2.5px 0 0; }
+.corner.bl { left: var(--bl); bottom: var(--bb); border-width: 0 0 2.5px 2.5px; } .corner.br { right: var(--br); bottom: var(--bb); border-width: 0 2.5px 2.5px 0; }
+.af-ring { position: absolute; left: 50%; top: 54%; width: 46px; height: 46px; margin: -23px; border-radius: 50%; border: 2px solid #ffd54a; opacity: 0; }
+.af-tag { position: absolute; left: 50%; top: 9%; transform: translateX(-50%); padding: 3px 7px; border-radius: 5px; background: rgba(0, 0, 0, .55); color: #fff; font: 600 9px/1 var(--mono); letter-spacing: .1em; opacity: 0; }
 .flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
 .shutter { position: absolute; left: 50%; bottom: 10px; width: 36px; height: 36px; margin-left: -18px; border-radius: 50%; border: 3px solid #fff; background: radial-gradient(circle, #fff 55%, transparent 58%); }
 .thread { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; min-width: 0; }
-.b-photo { padding: 4px; width: 62%; }
+.b-photo { padding: 4px; width: 44%; }
 .b-photo svg { display: block; width: 100%; height: auto; border-radius: 14px; background: #cfe0f3; }
 .slot { display: grid; justify-items: end; width: 100%; }
 .slot > * { grid-area: 1 / 1; }
@@ -434,13 +441,24 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 .sent svg { width: 15px; height: 15px; }
 .b-photo, .b-text, .b-dots, .sent { opacity: 0; }
 
-.step.on .v1 .flash { animation: flash .55s ease-out 1.15s both; }
-.step.on .v1 .shutter { animation: press .32s ease 1.1s both; }
-.step.on .v1 .b-photo { animation: bubIn .65s var(--spring) 1.6s both; }
-.step.on .v1 .b-dots { animation: dotsLife 1s ease 2.5s both; }
-.step.on .v1 .b-dots i { animation: dotBlink .9s ease-in-out 2.5s 2; }
-.step.on .v1 .b-text { animation: bubIn .65s var(--spring) 3.5s both; }
-.step.on .v1 .sent { animation: bubIn .5s ease 4.2s both; }
+/* focus pull: soft at first, brackets close in and snap onto the pile (0.15 to 0.85 s), the ring confirms lock, then the shutter fires */
+.step.on .v1 .vf { animation: focusPull .8s cubic-bezier(.3, .7, .2, 1) .1s both; }
+.step.on .v1 .screen { animation: bracketLock .8s cubic-bezier(.3, .7, .2, 1) .1s both; }
+.step.on .v1 .corner { animation: lockColor .25s ease .85s both; }
+.step.on .v1 .af-ring { animation: afRing .6s ease .8s both; }
+.step.on .v1 .af-tag { animation: afTag .2s ease .85s both; }
+.step.on .v1 .flash { animation: flash .45s ease-out 1.25s forwards; }
+.step.on .v1 .shutter { animation: press .28s ease 1.2s both; }
+.step.on .v1 .b-photo { animation: bubIn .55s var(--spring) 1.5s both; }
+.step.on .v1 .b-dots { animation: dotsLife .75s ease 2.05s both; }
+.step.on .v1 .b-dots i { animation: dotBlink .75s ease-in-out 2.05s 1; }
+.step.on .v1 .b-text { animation: bubIn .55s var(--spring) 2.55s both; }
+.step.on .v1 .sent { animation: bubIn .45s ease 3.05s both; }
+@keyframes focusPull { from { filter: blur(3.2px); transform: scale(1.05); } to { filter: blur(0); transform: scale(1); } }
+@keyframes bracketLock { from { --bl: 8%; --bt: 10%; --br: 8%; --bb: 22%; } to { --bl: 5%; --bt: 19%; --br: 5%; --bb: 15%; } }
+@keyframes lockColor { to { border-color: #ffd54a; } }
+@keyframes afRing { 0% { opacity: 1; transform: scale(1.7); } 60% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.8); } }
+@keyframes afTag { to { opacity: 1; } }
 @keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
 @keyframes press { 0%, 100% { transform: scale(1); } 45% { transform: scale(.84); } }
 @keyframes bubIn { from { opacity: 0; transform: translateY(14px) scale(.92); } to { opacity: 1; transform: none; } }
@@ -463,13 +481,13 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 .pc-ask { display: grid; place-items: center; height: 40px; padding: 0 12px; border-radius: 12px; background: #e9eef8; color: var(--ink-2); font: 600 13px/1 var(--body); white-space: nowrap; }
 .tap { position: absolute; right: 22%; top: 50%; width: 26px; height: 26px; margin: -13px; border-radius: 50%; border: 2px solid rgba(11, 18, 32, .55); background: rgba(255, 255, 255, .45); opacity: 0; pointer-events: none; }
 .b-hi, .pcard, .b-conf { opacity: 0; }
-.step.on .v2 .b-hi { animation: bubIn .6s var(--spring) .3s both; }
-.step.on .v2 .pcard { animation: cardIn .8s var(--ease-out) .9s both; }
-.step.on .v2 .tap { animation: tapMove 1.1s ease 2.2s both, tapRing .5s ease 3.3s both; }
-.step.on .v2 .pc-approve { animation: approveBg .3s ease 3.35s both; }
-.step.on .v2 .pc-approve b:first-child { animation: swapOut .2s ease 3.35s both; }
-.step.on .v2 .pc-approve .done { animation: swapIn .35s var(--spring) 3.4s both; }
-.step.on .v2 .b-conf { animation: bubIn .6s var(--spring) 4.1s both; }
+.step.on .v2 .b-hi { animation: bubIn .5s var(--spring) .1s both; }
+.step.on .v2 .pcard { animation: cardIn .6s var(--ease-out) .55s both; }
+.step.on .v2 .tap { animation: tapMove .75s ease 1.3s both, tapRing .4s ease 2.05s both; }
+.step.on .v2 .pc-approve { animation: approveBg .25s ease 2.1s both; }
+.step.on .v2 .pc-approve b:first-child { animation: swapOut .15s ease 2.1s both; }
+.step.on .v2 .pc-approve .done { animation: swapIn .3s var(--spring) 2.15s both; }
+.step.on .v2 .b-conf { animation: bubIn .5s var(--spring) 2.6s both; }
 @keyframes cardIn { from { opacity: 0; transform: translateY(26px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes tapMove { 0% { opacity: 0; transform: translate(70px, 60px); } 25% { opacity: 1; } 100% { opacity: 1; transform: translate(0, 0); } }
 @keyframes tapRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.2); opacity: 0; } }
@@ -491,6 +509,12 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 }
 @media (max-width: 640px) {
   .v2 { aspect-ratio: auto; padding: 22px 16px; }
+  /* the camera scene is taller than a fixed card on a narrow screen: let it grow to fit, with a phone of a set height */
+  .v1 { aspect-ratio: auto; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 14px; padding: 22px 16px; }
+  .v1 .phone { height: 232px; width: auto; }
+  .v1 .thread { align-self: center; }
+  .v1 .b-photo { width: 58%; }
+  .v1 .b-text { font-size: 12px; }
 }
 @media (max-width: 520px) {
   .route { padding-left: 58px; }
@@ -609,7 +633,7 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 /* ============================================================================
    FINALE and FOOTER: the closing night, the Strip, the truck driving off
    ========================================================================== */
-.finale { overflow: hidden; padding-bottom: 0; background-color: #070b16; background-image: radial-gradient(50% 60% at 50% 30%, rgba(232, 128, 63, .10), transparent 70%); }
+.finale { overflow-x: clip; padding-bottom: 0; background-color: #070b16; background-image: radial-gradient(50% 60% at 50% 30%, rgba(232, 128, 63, .10), transparent 70%); }
 .fin-copy { text-align: center; }
 .fin-h { margin: 0 auto; max-width: 9ch; font: 800 clamp(3.4rem, 11vw, 9.5rem)/.88 var(--display); letter-spacing: -.05em; color: #fff; text-wrap: balance; }
 .fin-lede { margin: 26px auto 0; max-width: 34ch; font: 400 clamp(1.1rem, 1.7vw, 1.4rem)/1.5 var(--body); color: var(--ice-dim); text-wrap: balance; }
@@ -620,11 +644,12 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
 .fin-biz a { color: var(--copper-300); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(244, 177, 132, .4); }
 .fin-biz a:hover { color: #fff; text-decoration-color: #fff; }
 
-.fin-scene { --p: 0; position: relative; margin-top: clamp(44px, 7vw, 96px); aspect-ratio: 1600 / 420; min-height: 240px; }
-.fin-sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.fin-track { margin-top: clamp(32px, 5vw, 70px); }
+.fin-scene { --p: 0; width: 100%; position: relative; aspect-ratio: 1600 / 420; min-height: 240px; }
+.fin-sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; -webkit-mask-image: linear-gradient(transparent, #000 22%); mask-image: linear-gradient(transparent, #000 22%); }
 .fin-scene::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26%; z-index: 1; background: linear-gradient(rgba(5, 8, 15, 0), #05080f); pointer-events: none; }
-.fin-truck { position: absolute; z-index: 2; bottom: 1%; left: calc(10% + var(--p) * 96%); width: 25%; min-width: 190px; height: auto; overflow: visible; will-change: left; }
-.fin-truck .wheel-spin { transform-box: fill-box; transform-origin: center; transform: rotate(calc(var(--p) * 1900deg)); }
+.fin-truck { position: absolute; z-index: 2; bottom: 1%; left: calc(-30% + var(--p) * 136%); width: 25%; min-width: 190px; height: auto; overflow: visible; will-change: left; }
+.fin-truck .wheel-spin { transform-box: fill-box; transform-origin: center; transform: rotate(calc(var(--p) * 3400deg)); }
 
 .foot { position: relative; overflow: hidden; background: #05080f; padding-top: clamp(40px, 6vw, 72px); }
 .foot-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: clamp(32px, 6vw, 96px); padding-bottom: clamp(36px, 5vw, 64px); }
@@ -656,5 +681,8 @@ html.how-live .step.on .step-copy, html.how-live .step.on .step-art { opacity: 1
   .foot-cols > div:last-child { grid-column: 1 / -1; }
   .fin-actions .btn { flex: 1 1 100%; }
   .fin-scene { min-height: 190px; }
+  /* a phone has room for about a third of the skyline: frame the most recognizable stretch (Paris to Wynn) */
+  .fin-sky { inset: 0 auto 0 -52%; width: 205%; height: 100%; }
 }
+
 
