@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Swift Junk Removal | Las Vegas &amp; Henderson</title>
+<meta name="description" content="Fast junk removal and cleanouts across Las Vegas and Henderson. Free quote, and you approve the price before we lift anything.">
+<meta name="theme-color" content="#0b1220">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Layout concept: one pinned stage where the truck is the camera and scroll is the throttle,
+     then a calm, dark, high-contrast page below it. Copper is the only accent. */
+  :root {
+    --navy-950: #070b16;
+    --navy-900: #0b1220;
+    --navy-850: #0e1629;
+    --navy-800: #121c33;
+    --navy-700: #1a2744;
+    --line: rgba(238,241,250,.12);
+    --copper-300: #f4b184;
+    --copper-500: #e8803f;
+    --copper-700: #b9561f;
+    --ice: #eef1fa;
+    --ice-dim: #c9d0e4;
+    --ice-mute: #98a2bf;
+    --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+    --gutter: clamp(20px, 5vw, 72px);
+    --r-lg: 22px;
+    --r-md: 14px;
+  }
+  * { box-sizing: border-box; }
+  :root { color-scheme: dark; }
+  html { background: var(--navy-950); scroll-behavior: smooth; scroll-padding-top: 76px; overflow-anchor: none; }
+  body { margin: 0; background: var(--navy-950); color: var(--ice); font-family: var(--body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--copper-300); outline-offset: 3px; border-radius: 6px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- nav ---------- */
+  .nav {
+    position: fixed; z-index: 30; inset: 0 0 auto 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) var(--gutter) 14px;
+    background: linear-gradient(to bottom, rgba(7,11,22,.78), rgba(7,11,22,0));
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand svg { width: 46px; height: auto; display: block; }
+  .brand-text { display: flex; flex-direction: column; line-height: 1; }
+  .brand-name { font: 700 22px/1 var(--body); letter-spacing: .14em; color: #fff; }
+  .brand-sub { margin-top: 5px; font: 500 8.5px/1 var(--body); letter-spacing: .42em; color: var(--copper-500); white-space: nowrap; }
+  .nav-links { display: flex; gap: clamp(18px, 2.6vw, 38px); }
+  .nav-links a { font: 500 15px/1 var(--body); text-decoration: none; color: var(--ice-dim); padding: 10px 2px; transition: color .2s; }
+  .nav-links a:hover { color: #fff; }
+  .nav-cta { display: flex; align-items: center; gap: 10px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    min-height: 48px; padding: 0 24px; border-radius: 999px;
+    font: 600 16px/1 var(--body); text-decoration: none; white-space: nowrap;
+    border: 1.5px solid transparent; cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+  }
+  .btn-primary { color: var(--navy-900); background: linear-gradient(180deg, #f59a58 0%, var(--copper-500) 55%, #d96d2f 100%); box-shadow: 0 8px 26px -8px rgba(232,128,63,.75), inset 0 1px 0 rgba(255,255,255,.35); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 32px -8px rgba(232,128,63,.9), inset 0 1px 0 rgba(255,255,255,.4); }
+  .btn-ghost { color: #fff; border-color: rgba(238,241,250,.38); background: rgba(11,18,32,.42); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .btn-ghost:hover { border-color: #fff; background: rgba(11,18,32,.62); }
+  .btn svg { width: 18px; height: 18px; flex: none; }
+  .nav .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
+
+  /* ---------- the ride: tall track, pinned stage ---------- */
+  .ride { position: relative; }
+  .stage { position: sticky; top: 0; height: 100svh; overflow: hidden; isolation: isolate; background: linear-gradient(#0b1220, #26295a 55%, #ef8a57); }
+  html.ride-off .stage { position: relative; }
+  html.ride-off .cue, html.ride-off .rail, html.ride-off .skip, html.ride-off .tickets { display: none; }
+
+  .sky, .sky i { position: absolute; inset: 0; display: block; }
+  .sky i { opacity: 0; }
+  .sky i:first-child { opacity: 1; }
+  .lyr { position: absolute; display: block; pointer-events: none; overflow: visible; will-change: transform; }
+  .bgstack, .bgstackL { position: absolute; inset: 0; will-change: transform; pointer-events: none; }
+  .bgstack .lyr, .bgstackL .lyr { bottom: 0; }
+  .fgstack, .fgstackL { position: absolute; left: 0; bottom: 0; transform-origin: 0 100%; pointer-events: none; will-change: transform; }
+  .fgstack > *, .fgstackL > * { position: absolute; bottom: 0; }
+  .world { left: 0; width: 0; height: 0; will-change: transform; }
+  .seg { position: absolute; bottom: 0; display: block; overflow: visible; }
+  .truck, .truckLights { display: block; overflow: visible; will-change: transform; transform-origin: 50% 94%; }
+  .actors { left: 0; display: block; overflow: visible; }
+  .grade { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+  .g-day { background: rgba(214,232,250,.18); }
+  .g-gold { background: rgba(255,146,64,.20); }
+  .g-dusk { background: rgba(78,44,128,.36); }
+.nt { opacity: 0; visibility: hidden; }
+  .vig { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(7,11,22,.80) 0%, rgba(7,11,22,.52) 26%, rgba(7,11,22,0) 52%), radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 55%, rgba(4,6,14,.5) 100%); }
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: .08; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>"); }
+
+  /* ---------- hero copy ---------- */
+  .hero-copy { --hero: 1; position: absolute; z-index: 6; left: var(--gutter); top: clamp(84px, 12vh, 130px); max-width: min(640px, calc(100% - 2 * var(--gutter))); will-change: transform; }
+  .hero-copy > * { opacity: var(--hero); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); }
+  .hero-copy > :nth-child(2) { transition-delay: .08s; }
+  .hero-copy > :nth-child(3) { transition-delay: .16s; }
+  .hero-copy h1 { margin: 0; font: 800 clamp(2.9rem, 6.6vw, 6rem)/.95 var(--display); font-optical-sizing: auto; letter-spacing: -.02em; color: #fff; text-wrap: balance; text-shadow: 0 2px 30px rgba(7,11,22,.55); }
+  .hero-sub { margin: clamp(14px, 2.2vh, 22px) 0 0; max-width: 44ch; font: 400 clamp(1rem, 1.45vw, 1.28rem)/1.5 var(--body); color: #dfe4f2; text-shadow: 0 1px 18px rgba(7,11,22,.7); }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(18px, 3vh, 30px); }
+  .hero-actions .btn { min-height: 54px; padding: 0 28px; font-size: 17px; }
+
+  .stage.riding .hero-copy > * { transition-duration: .2s; transition-delay: 0s; }
+  .cue, .skip {
+    position: absolute; z-index: 7; right: max(var(--gutter), env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 18px; border-radius: 999px;
+    font: 500 14px/1 var(--body); color: #e9edf8; text-decoration: none;
+    background: rgba(7,11,22,.58); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(238,241,250,.18);
+    transition: opacity .35s ease, border-color .2s;
+  }
+  .cue svg, .skip svg { width: 20px; height: 20px; color: var(--copper-500); flex: none; }
+  .cue svg { animation: cue 1.8s ease-in-out infinite; }
+  @keyframes cue { 0%,100% { transform: translateY(0); opacity: .7; } 50% { transform: translateY(5px); opacity: 1; } }
+  .skip { opacity: 0; pointer-events: none; }
+  .skip:hover { border-color: var(--copper-500); }
+  .stage.riding .cue { opacity: 0; pointer-events: none; }
+  .stage.riding .skip { opacity: 1; pointer-events: auto; }
+  .stage.ended .skip { opacity: 0; pointer-events: none; }
+
+  /* ---------- job cards ---------- */
+  .tickets { position: absolute; z-index: 8; right: var(--gutter); top: clamp(92px, 15vh, 150px); width: min(430px, 36vw); }
+  .ticket {
+    position: absolute; top: 0; left: 0; width: 100%;
+    padding: 24px 24px 22px; border-radius: var(--r-lg);
+    background: rgba(11,18,32,.86); border: 1px solid rgba(238,241,250,.16);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 30px 70px -24px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.06);
+    opacity: 0; visibility: hidden; transform: translate3d(26px,0,0);
+    transition: opacity .45s ease, transform .6s cubic-bezier(.2,.7,.2,1), visibility 0s linear .45s;
+  }
+  .ticket.on { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .tk-step { margin: 0 0 10px; font: 600 13px/1 var(--body); letter-spacing: .02em; color: var(--copper-300); }
+  .ticket h2 { margin: 0; font: 700 clamp(1.45rem, 2.4vw, 1.95rem)/1.1 var(--display); letter-spacing: -.01em; color: #fff; text-wrap: balance; }
+  .ticket p { margin: 12px 0 0; font: 400 16px/1.5 var(--body); color: #dfe4f2; }
+  .ticket p.tk-step { margin: 0 0 10px; font: 600 13px/1 var(--body); color: var(--copper-300); }
+  .ticket ul { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .ticket li { display: flex; gap: 10px; align-items: flex-start; font: 500 15px/1.35 var(--body); color: var(--ice); }
+  .ticket li svg { width: 16px; height: 16px; margin-top: 2px; color: var(--copper-500); flex: none; }
+  .tk-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .tk-actions .btn { min-height: 48px; padding: 0 22px; font-size: 15.5px; }
+
+  /* ---------- stop rail ---------- */
+  .rail { position: absolute; z-index: 8; left: var(--gutter); top: clamp(110px, 17vh, 170px); opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .rail ol { position: relative; margin: 0; padding: 12px 18px 12px 14px; list-style: none; display: grid; gap: 2px; border-radius: 18px; background: rgba(11,18,32,.62); border: 1px solid rgba(238,241,250,.12); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .rail-line { position: absolute; left: 21px; top: 32px; bottom: 32px; width: 2px; background: rgba(238,241,250,.22); border-radius: 2px; overflow: hidden; }
+  .rail-line i { position: absolute; inset: 0; background: var(--copper-500); transform-origin: top; transform: scaleY(0); }
+  .rail button {
+    position: relative; display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 8px 0 0;
+    background: none; border: 0; cursor: pointer; font: 500 14px/1 var(--body); color: var(--ice-mute); text-align: left;
+    transition: color .25s;
+  }
+  .rail button:hover { color: #fff; }
+  .rail button i { width: 16px; height: 16px; border-radius: 50%; background: var(--navy-900); border: 2px solid rgba(238,241,250,.5); flex: none; transition: border-color .25s, background .25s, transform .25s; }
+  .rail button.on { color: #fff; }
+  .rail button.on i { border-color: var(--copper-500); background: var(--copper-500); transform: scale(1.15); }
+  .rail button span { text-shadow: 0 1px 12px rgba(7,11,22,.8); }
+  .rail li { list-style: none; }
+
+  /* ---------- splash intro ---------- */
+  .splash, .splash-skip, .wipe { display: none; }
+  .splash-on:not(.splash-over) { overflow: hidden; }
+  .splash-on:not(.splash-over) .splash { display: grid; place-items: center; position: fixed; inset: 0; z-index: 100; background: #fff; }
+  .splash-on:not(.splash-over) .wipe { display: block; position: fixed; inset: 0; width: 100%; height: 100%; z-index: 101; pointer-events: none; filter: drop-shadow(0 0 14px rgba(232,128,63,.55)); }
+  .splash-on:not(.splash-over) .splash-skip { display: inline-flex; position: fixed; z-index: 102; right: max(var(--gutter), env(safe-area-inset-right, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; cursor: pointer; font: 600 14px/1 var(--body); color: var(--navy-900); background: rgba(255,255,255,.9); border: 1.5px solid rgba(15,26,51,.25); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .splash-skip:hover { border-color: var(--copper-500); }
+  .sp-lock { display: flex; align-items: center; gap: clamp(14px, 2.6vw, 36px); padding-inline: 20px; }
+  .sp-mark { width: clamp(72px, 13vw, 176px); height: auto; display: block; overflow: visible; }
+  .sp-rule { width: 2px; align-self: stretch; margin-block: 6%; background: linear-gradient(#e8803f, rgba(232,128,63,.25)); transform-origin: center; }
+  .sp-text { display: flex; flex-direction: column; gap: clamp(8px, 1.3vw, 18px); }
+  .sp-word { display: flex; font: 700 clamp(46px, 9.6vw, 124px)/.9 var(--body); letter-spacing: .06em; color: var(--navy-900); }
+  .sp-word span { display: inline-block; }
+  .sp-sub { font: 600 clamp(10.5px, 1.6vw, 21px)/1 var(--body); letter-spacing: .46em; color: var(--copper-700); white-space: nowrap; }
+  .sp-mark path, .sp-word span, .sp-sub, .sp-rule { opacity: 0; }
+  .splash.play .sp-mark path { animation: chevIn .55s cubic-bezier(.2,.8,.2,1) both; }
+  .splash.play .sp-mark .c2 { animation-delay: .12s; }
+  .splash.play .sp-mark .c3 { animation-delay: .24s; }
+  .splash.play .sp-rule { animation: ruleIn .5s cubic-bezier(.2,.8,.2,1) .6s both; }
+  .splash.play .sp-word span { animation: letterIn .55s cubic-bezier(.2,.9,.2,1) both; animation-delay: calc(.62s + var(--i) * .07s); }
+  .splash.play .sp-sub { animation: subIn .9s cubic-bezier(.2,.8,.2,1) 1.02s both; }
+  @keyframes chevIn { from { opacity: 0; transform: translateX(-38px); } to { opacity: 1; transform: none; } }
+  @keyframes ruleIn { from { opacity: 0; transform: scaleY(0); } to { opacity: 1; transform: none; } }
+  @keyframes letterIn { from { opacity: 0; transform: translateX(-22px); filter: blur(7px); } to { opacity: 1; transform: none; filter: none; } }
+  @keyframes subIn { from { opacity: 0; letter-spacing: .9em; } to { opacity: 1; letter-spacing: .46em; } }
+  .splash-on:not(.hero-in) .hero-copy > * { opacity: 0; transform: translateY(18px); }
+  .nav { transition: opacity .7s ease, background .3s ease, box-shadow .3s ease; }
+  .nav.solid { background: rgba(7,11,22,.9); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 1px 0 var(--line); }
+  .splash-on:not(.hero-in) .nav, .splash-on:not(.hero-in) .cue { opacity: 0; }
+
+  /* ---------- ambient motion (small, and off for reduced motion) ---------- */
+  .beacon { animation: blink 2.6s steps(1) infinite; }
+  @keyframes blink { 0%,86% { opacity: 1; } 87%,100% { opacity: .1; } }
+  .truck-body { animation: idle 2.4s ease-in-out infinite; }
+  @keyframes idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.2px); } }
+  .exhaust { animation: puff 4.5s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes puff { 0% { transform: translate(0,0) scale(.5); opacity: 0; } 20% { opacity: .22; } 100% { transform: translate(-46px,-18px) scale(2.2); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .beacon, .truck-body, .exhaust, .cue svg { animation: none; }
+    .ticket, .hero-copy > *, .skip, .cue { transition: none; }
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 860px) {
+    .nav-links { display: none; }
+    .brand-sub { letter-spacing: .3em; }
+    .tickets { left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); top: calc(118px + env(safe-area-inset-top, 0px)); width: auto; }
+    .ticket { padding: 18px 18px 16px; }
+    .ticket h2 { font-size: 1.35rem; }
+    .ticket p { font-size: 15px; margin-top: 8px; }
+    .ticket ul { margin-top: 10px; gap: 5px; }
+    .ticket li { font-size: 14px; }
+    .tk-actions { margin-top: 14px; }
+    .tk-actions .btn { min-height: 46px; font-size: 15px; padding: 0 18px; }
+    .rail { left: max(16px, env(safe-area-inset-left, 0px)); right: 16px; top: calc(68px + env(safe-area-inset-top, 0px)); }
+    .rail ol { display: flex; gap: 4px; align-items: center; padding: 2px 8px; border-radius: 999px; width: max-content; max-width: 100%; }
+    .rail-line { display: none; }
+    .rail button { min-height: 40px; padding: 0 6px; gap: 8px; }
+    .rail button span { display: none; }
+    .rail button.on span { display: inline; }
+    .rail button i { width: 14px; height: 14px; }
+  }
+  @media (max-width: 640px) {
+    .brand svg { width: 38px; }
+    .brand-name { font-size: 18px; }
+    .brand-sub { font-size: 7px; }
+    .nav .btn-ghost span { display: none; }
+    .nav .btn-ghost { padding: 0; width: 44px; }
+    .hero-actions .btn { flex: 1 1 100%; }
+    .cue { display: none; }
+    .rail { right: 112px; }
+    .rail ol { max-width: 100%; overflow: hidden; }
+    .skip { min-height: 40px; padding: 0 12px 0 14px; font-size: 14px; right: 12px; bottom: auto; top: calc(68px + env(safe-area-inset-top, 0px)); }
+    .hide-sm { display: none; }
+    .tk-actions .btn { flex: 1 1 auto; }
+    .tk-actions .btn-ghost { display: none; }
+  }
+  @media (max-height: 520px) { .rail { display: none; } }
+  @media (max-width: 420px) { .rail button.on span { display: none; } }
+  @media (max-width: 380px) { .brand-sub { letter-spacing: .22em; font-size: 6.5px; } .brand-name { font-size: 17px; letter-spacing: .12em; } .brand { gap: 9px; } }
+  /* short phones: keep the card to heading, line and button so it never reaches the truck */
+  @media (max-width: 860px) and (max-height: 720px) { .ticket ul { display: none; } .ticket p { margin-top: 6px; } }
+</style>
+<link rel="stylesheet" href="css/sections.css">
+</head>
+<body>
+<script>
+/* Plays once per visit. ?nosplash skips it, ?splash replays it. Reduced-motion visitors never see it. */
+(function () {
+  var play = true;
+  try {
+    if (location.search.indexOf('nosplash') > -1) play = false;
+    else if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) play = false;
+    else if (sessionStorage.getItem('swiftIntro') && location.search.indexOf('splash') < 0) play = false;
+  } catch (e) {}
+  if (play) document.documentElement.classList.add('splash-on');
+})();
+</script>
+
+<!-- shared art defs, brand marks and icons -->
+<svg id="sprite" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs id="spriteDefs"></defs>
+  <symbol id="mark-dark" viewBox="0 0 172 108"><path d="M0 0H30L64 54L30 108H0L34 54Z" fill="#7a4630"/><path d="M54 0H84L118 54L84 108H54L88 54Z" fill="#c4632d"/><path d="M108 0H138L172 54L138 108H108L142 54Z" fill="#eef1fa"/></symbol>
+  <symbol id="mark-light" viewBox="0 0 172 108"><path d="M0 0H30L64 54L30 108H0L34 54Z" fill="#f6d3bd"/><path d="M54 0H84L118 54L84 108H54L88 54Z" fill="#e99a63"/><path d="M108 0H138L172 54L138 108H108L142 54Z" fill="#0f1a33"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3h3l1.5 4.2-2 1.4a11 11 0 005.3 5.3l1.4-2L20 13.4v3A2.6 2.6 0 0117.4 19C9.9 19 5 14.1 5 6.6A2.6 2.6 0 017.6 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" transform="translate(-.5 0)"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+</svg>
+
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="sp-lock">
+    <svg class="sp-mark" viewBox="0 0 172 108" focusable="false">
+      <path class="c1" d="M0 0H30L64 54L30 108H0L34 54Z" fill="#f6d3bd"/><path class="c2" d="M54 0H84L118 54L84 108H54L88 54Z" fill="#e99a63"/><path class="c3" d="M108 0H138L172 54L138 108H108L142 54Z" fill="#0f1a33"/>
+    </svg>
+    <span class="sp-rule"></span>
+    <div class="sp-text">
+      <div class="sp-word"><span style="--i:0">S</span><span style="--i:1">W</span><span style="--i:2">I</span><span style="--i:3">F</span><span style="--i:4">T</span></div>
+      <div class="sp-sub">JUNK REMOVAL</div>
+    </div>
+  </div>
+</div>
+<svg class="wipe" id="wipe" aria-hidden="true" focusable="false">
+  <polyline id="wc2" fill="none" stroke="#7a4630" stroke-width="5" stroke-linejoin="miter" stroke-opacity=".85"/>
+  <polyline id="wc1" fill="none" stroke="#c4632d" stroke-width="6" stroke-linejoin="miter"/>
+  <polyline id="wc0" fill="none" stroke="#f08a4b" stroke-width="7" stroke-linejoin="miter"/>
+</svg>
+<button class="splash-skip" id="splashSkip" type="button">Skip intro</button>
+
+<header class="nav">
+  <a class="brand" href="#top" aria-label="Swift Junk Removal, home">
+    <svg class="mk-d" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg><svg class="mk-l" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-light"/></svg>
+    <span class="brand-text"><span class="brand-name">SWIFT</span><span class="brand-sub">JUNK REMOVAL</span></span>
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#services">Services</a><a href="#how">How it works</a><a href="#proof">Results</a><a href="#faq">FAQ</a>
+  </nav>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="tel:+17020000000" aria-label="Call Swift Junk Removal"><svg aria-hidden="true"><use href="#i-phone"/></svg><span>(702) 000-0000</span></a>
+    <a class="btn btn-primary" href="#quote" data-service="general">Get a quote</a>
+  </div>
+</header>
+
+<main id="top">
+<section class="ride" id="ride" aria-label="Swift Junk Removal in Las Vegas and Henderson">
+  <div class="stage" id="stage">
+
+    <!-- sky, one layer per time of day, cross-faded by scroll -->
+    <div class="sky" id="sky" aria-hidden="true"><i id="sky-dawn"></i><i id="sky-day"></i><i id="sky-gold"></i><i id="sky-dusk"></i><i id="sky-night"></i></div>
+    <svg class="lyr" id="lyStars" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true" focusable="false" style="bottom:0;opacity:0"><g id="starsG"></g></svg>
+
+    <div class="bgstack" id="bgstack" aria-hidden="true">
+      <svg class="lyr" id="lySun" viewBox="0 0 1600 900" preserveAspectRatio="none" focusable="false">
+        <defs>
+          <radialGradient id="sunGlowG"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".22" stop-color="#ffb26a" stop-opacity=".5"/><stop offset=".6" stop-color="#e0623c" stop-opacity=".16"/><stop offset="1" stop-color="#8a3a52" stop-opacity="0"/></radialGradient>
+          <radialGradient id="moonGlowG"><stop offset="0" stop-color="#cfe0ff" stop-opacity=".5"/><stop offset=".4" stop-color="#9bb8ff" stop-opacity=".16"/><stop offset="1" stop-color="#7a98ff" stop-opacity="0"/></radialGradient>
+        </defs>
+        <g id="sunG"><circle id="sunGlow" cx="960" cy="548" r="560" fill="url(#sunGlowG)"/><circle id="sunDisc" cx="960" cy="548" r="50" fill="#fffaf0"/></g>
+        <g id="moonG" opacity="0"><circle cx="880" cy="200" r="150" fill="url(#moonGlowG)"/><circle cx="880" cy="200" r="30" fill="#eef3ff"/><circle cx="870" cy="192" r="6" fill="#cfd8ee"/><circle cx="890" cy="210" r="4.5" fill="#d6def2"/><circle cx="884" cy="188" r="3" fill="#d6def2"/></g>
+      </svg>
+      <svg class="lyr" id="lyCloudsA" preserveAspectRatio="none" focusable="false" style="opacity:1"></svg>
+      <svg class="lyr" id="lyCloudsB" preserveAspectRatio="none" focusable="false" style="opacity:0"></svg>
+      <svg class="lyr" id="lyMtn" preserveAspectRatio="none" focusable="false"></svg>
+      <svg class="lyr" id="lySky" preserveAspectRatio="none" focusable="false"></svg>
+      <svg class="lyr" id="lyStrip" preserveAspectRatio="none" focusable="false"></svg>
+      <svg class="lyr" id="lyFoot" preserveAspectRatio="none" focusable="false"></svg>
+      <svg class="lyr" id="lySub" preserveAspectRatio="none" focusable="false"></svg>
+    </div>
+
+    <div class="fgstack" id="fgstack" aria-hidden="true">
+      <svg class="lyr" id="lyMid" focusable="false"></svg>
+      <div class="world" id="world"></div>
+      <svg class="truck" id="truck" focusable="false"></svg>
+      <svg class="actors" id="actors" focusable="false"></svg>
+    </div>
+
+    <div class="grade g-day" id="grade-day"></div>
+    <div class="grade g-gold" id="grade-gold"></div>
+    <div class="grade g-dusk" id="grade-dusk"></div>
+
+    <!-- headlights and tail glow: the only thing that sits above the grade -->
+    <div class="fgstackL" id="fgstackL" aria-hidden="true">
+      <svg class="truckLights" id="truckLights" focusable="false"></svg>
+    </div>
+
+    <div class="vig" id="vig" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- hero copy -->
+    <div class="hero-copy" id="heroCopy">
+      <h1>Junk gone.<br>Same day.</h1>
+      <p class="hero-sub">Junk removal and cleanouts across Las Vegas and Henderson. Get a free quote, and approve the price before we lift a thing.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#quote" data-service="general">Get a free quote</a>
+        <a class="btn btn-ghost" href="tel:+17020000000"><svg aria-hidden="true"><use href="#i-phone"/></svg>Call (702) 000-0000</a>
+      </div>
+    </div>
+
+    <!-- the closing card, shown once the truck has parked for the night -->
+    <div class="tickets" id="tickets" aria-live="polite">
+      <article class="ticket" aria-label="Get your free quote">
+        <p class="tk-step">Your place is next</p>
+        <h2>Tell us what needs to go.</h2>
+        <p>We'll send your price before we lift a thing. Free, with no obligation.</p>
+        <div class="tk-actions"><a class="btn btn-primary" href="#quote" data-service="general">Get your free quote</a><a class="btn btn-ghost" href="tel:+17020000000"><svg aria-hidden="true"><use href="#i-phone"/></svg>Call (702) 000-0000</a></div>
+      </article>
+    </div>
+
+    <div class="cue" id="cue" aria-hidden="true">Scroll to ride along <svg viewBox="0 0 24 24"><use href="#i-down"/></svg></div>
+    <a class="skip" id="skip" href="#quote">Skip<span class="hide-sm"> the ride</span> <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-down"/></svg></a>
+  </div>
+</section>
+
+<div class="strip" aria-label="What to expect"><div class="strip-track"><ul><li>Free, no-obligation quotes<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Price confirmed before we lift<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Serving Las Vegas &amp; Henderson<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Our crew does all the lifting<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Donated and recycled where we can<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Photos help us price faster<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li></ul><ul aria-hidden="true"><li>Free, no-obligation quotes<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Price confirmed before we lift<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Serving Las Vegas &amp; Henderson<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Our crew does all the lifting<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Donated and recycled where we can<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li><li>Photos help us price faster<svg class="tick-mark" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg></li></ul></div></div>
+
+<section class="sheet sheet--night quote" id="quote" data-tone="night" aria-labelledby="quote-h">
+  <div class="wrap quote-grid">
+    <div class="q-copy">
+      <h2 class="h2" id="quote-h" data-reveal>Tell us what needs to go.</h2>
+      <p class="lede" data-reveal style="--d:.08s">Send a few details, and a photo if you have one. We'll reply with your price before we lift anything.</p>
+
+      <figure class="loader" id="loader" data-reveal style="--d:.16s">
+        <div class="loader-stage"><svg id="loadSvg" aria-hidden="true" focusable="false"></svg></div>
+        <figcaption><span class="loader-dot" aria-hidden="true"></span><span id="loadCap" aria-live="polite">Pick what's going and we'll load the truck.</span></figcaption>
+      </figure>
+
+      <ul class="checks" data-reveal style="--d:.22s">
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg>Free quote, no obligation</li>
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg>You approve the price before we start</li>
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg>We do all the lifting and loading</li>
+      </ul>
+      <div class="contact-lines" data-reveal style="--d:.28s">
+        <span>Prefer to talk? Call <a href="tel:+17020000000">(702) 000-0000</a></span>
+        <span>Or email <a href="mailto:hello@example.com">hello@example.com</a></span>
+      </div>
+    </div>
+
+    <div class="wo-wrap" id="formCard">
+      <div class="wo-shell" id="woShell">
+        <form class="wo" id="quoteForm" novalidate>
+          <header class="wo-head m-b">
+            <div class="wo-id">
+              <svg viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-light"/></svg>
+              <div><b>Work order</b><span>Swift Junk Removal</span></div>
+            </div>
+            <dl class="wo-meta">
+              <div><dt>No.</dt><dd id="woNo">SW-0000-0000</dd></div>
+              <div><dt>Date</dt><dd id="woDate">Today</dd></div>
+            </dl>
+          </header>
+
+          <div class="wo-body m-tb">
+            <ol class="wo-steps" id="woSteps" aria-label="Request progress">
+              <li class="on"><button type="button" data-s="1"><i>1</i><span>What</span></button></li>
+              <li><button type="button" data-s="2" disabled><i>2</i><span>Where and when</span></button></li>
+              <li><button type="button" data-s="3" disabled><i>3</i><span>You</span></button></li>
+            </ol>
+
+            <div class="wo-panes">
+              <div class="pane on" data-step="1" role="group" aria-labelledby="h-s1">
+                <h3 id="h-s1" tabindex="-1">What's going?</h3>
+                <p class="pane-sub">Pick everything that applies.</p>
+                <div class="tiles">
+                  <label class="tile"><input type="checkbox" name="service" value="garage"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-44 0) scale(.74)"><use href="#it-boxStack"/></g><g transform="translate(32 0) scale(.74)"><use href="#it-bike"/></g></svg><b>Garage or home</b><small>Boxes, bikes, storage</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="furniture"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-30 0) scale(.72)"><use href="#it-couch"/></g><g transform="translate(52 0) scale(.56)"><use href="#it-fridge"/></g></svg><b>Furniture and appliances</b><small>Couches, mattresses, fridges</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="construction"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-30 0) scale(.62)"><use href="#it-lumber"/></g><g transform="translate(50 0) scale(.88)"><use href="#it-bags"/></g></svg><b>Construction debris</b><small>Lumber, drywall, tile</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="commercial"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-40 0) scale(.7)"><use href="#it-desk"/></g><g transform="translate(24 0) scale(.74)"><use href="#it-chair"/></g><g transform="translate(62 0) scale(.74)"><use href="#it-filing"/></g></svg><b>Office or property</b><small>Desks, turnovers, vacant units</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="estate"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-52 0) scale(.7)"><use href="#it-dresser"/></g><g transform="translate(16 0) scale(.72)"><use href="#it-armchair"/></g><g transform="translate(68 0) scale(.7)"><use href="#it-lamp"/></g></svg><b>Estate or move-out</b><small>Whole-house cleanouts</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile tile-open"><input type="checkbox" name="service" value="general"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-16 0)"><rect x="-26" y="-50" width="52" height="50" rx="3" fill="#e9eef8" stroke="#c4cee3" stroke-width="1.5"/><text x="0" y="-14" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="40" fill="#e8803f">?</text></g><g transform="translate(40 0) scale(.55)"><use href="#it-box"/></g></svg><b>Not sure yet</b><small>Send a photo, we'll tell you</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                </div>
+                <p class="err" id="e-service" role="alert"></p>
+              </div>
+
+              <div class="pane" data-step="2" role="group" aria-labelledby="h-s2" inert>
+                <h3 id="h-s2" tabindex="-1">Where and when?</h3>
+                <p class="pane-sub">So we can send the right crew at the right time.</p>
+                <div class="field zip-field"><label for="f-zip">ZIP code</label><input id="f-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="89101" required>
+                  <p class="zip-note" id="zipNote" aria-live="polite"></p><span class="err" id="e-zip" role="alert"></span></div>
+                <fieldset class="field when-field"><legend>When do you need us?</legend>
+                  <div class="chips">
+                    <label class="chip"><input type="radio" name="when" value="today"><span>Today</span></label>
+                    <label class="chip"><input type="radio" name="when" value="tomorrow"><span>Tomorrow</span></label>
+                    <label class="chip"><input type="radio" name="when" value="week"><span>This week</span></label>
+                    <label class="chip"><input type="radio" name="when" value="flexible" checked><span>I'm flexible</span></label>
+                  </div></fieldset>
+                <div class="field"><label for="f-details">Anything we should know? <span class="hint">(optional)</span></label><textarea id="f-details" name="details" placeholder="A couch, two mattresses and about ten boxes from the garage. Stairs, gate code, parking."></textarea></div>
+              </div>
+
+              <div class="pane" data-step="3" role="group" aria-labelledby="h-s3" inert>
+                <h3 id="h-s3" tabindex="-1">Who should we text?</h3>
+                <p class="pane-sub">We'll reply with your price. You approve it before we lift anything.</p>
+                <div class="who-grid">
+                  <div class="field"><label for="f-name">Your name</label><input id="f-name" name="name" type="text" autocomplete="name" required><span class="err" id="e-name" role="alert"></span></div>
+                  <div class="field"><label for="f-phone">Mobile number</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(702) 000-0000" required><span class="err" id="e-phone" role="alert"></span></div>
+                </div>
+                <fieldset class="field when-field contact-field"><legend>Best way to reach you</legend>
+                  <div class="chips">
+                    <label class="chip"><input type="radio" name="contact" value="text" checked><span>Text</span></label>
+                    <label class="chip"><input type="radio" name="contact" value="call"><span>Call</span></label>
+                  </div></fieldset>
+                <div class="field"><span class="label-like">Photos <span class="hint">(optional, but they help us price faster)</span></span>
+                  <label class="drop" id="drop" for="f-photos"><svg aria-hidden="true"><use href="#i-camera"/></svg><span id="dropLabel"><b>Add photos</b> or drop them here</span><input id="f-photos" name="photos" type="file" accept="image/*" multiple></label>
+                  <ul class="thumbs" id="thumbs" aria-label="Photos added"></ul></div>
+              </div>
+            </div>
+          </div>
+
+          <footer class="wo-stub m-t">
+            <dl class="wo-sum">
+              <div><dt>Service</dt><i class="lead"></i><dd id="sumSvc" class="empty">Not picked yet</dd></div>
+              <div><dt>Where</dt><i class="lead"></i><dd id="sumZip" class="empty">ZIP needed</dd></div>
+              <div><dt>When</dt><i class="lead"></i><dd id="sumWhen">I'm flexible</dd></div>
+              <div><dt>Price</dt><i class="lead"></i><dd class="ok">Confirmed before we lift</dd></div>
+            </dl>
+            <div class="wo-actions">
+              <button type="button" class="wo-back" id="woBack" hidden>Back</button>
+              <button type="button" class="btn btn-primary" id="woNext">Next: where and when <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
+            <p class="wo-fine" id="woFine">Takes about a minute. Nothing is sent until the last step.</p>
+            <div class="barcode" id="barcode" aria-hidden="true"></div>
+          </footer>
+        </form>
+
+        <div class="wo-done" id="success" role="status" tabindex="-1">
+          <div class="stamp" aria-hidden="true">Received</div>
+          <h3>We've got your request.</h3>
+          <p class="done-lede">A real person reads every request. We'll text you with your price, and you approve it before we lift anything.</p>
+          <ol class="next-list">
+            <li><i>1</i><span><b>We review</b>Your details and any photos you sent.</span></li>
+            <li><i>2</i><span><b>You get a price</b>By text or call. No surprises on the day.</span></li>
+            <li><i>3</i><span><b>We haul it away</b>The crew does all the lifting and loading.</span></li>
+          </ol>
+          <p class="done-ref">Reference <b id="doneNo">SW-0000-0000</b></p>
+          <p class="demo-note" id="demoNote">Preview only: this form isn't connected to an inbox yet, so nothing was sent.</p>
+          <button type="button" class="wo-again" id="woAgain">Add another job</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet sheet--day services" id="services" data-tone="day" aria-labelledby="svc-h">
+  <div class="wrap">
+    <header class="svc-head">
+      <h2 class="h2" id="svc-h" data-reveal>What we remove.</h2>
+      <p class="lede" data-reveal style="--d:.08s">From a single couch to a whole house. If you can point to it, we can probably haul it.</p>
+    </header>
+
+    <div class="svc-track" id="svcTrack">
+    <div class="showroom" id="showroom" data-reveal style="--d:.1s">
+      <div class="stage-card" id="svcStage" aria-hidden="true">
+        <div class="scenes" id="svcScenes"></div>
+        <div class="pins" id="svcPins"></div>
+        <div class="wipe-chev"><svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false"><polyline points="0,0 47,50 0,100" fill="none" stroke="#7a4630" stroke-width="9" vector-effect="non-scaling-stroke"/><polyline points="26,0 73,50 26,100" fill="none" stroke="#c4632d" stroke-width="9" vector-effect="non-scaling-stroke"/><polyline points="53,0 100,50 53,100" fill="none" stroke="#fff" stroke-width="9" vector-effect="non-scaling-stroke"/></svg></div>
+        <div class="stage-tag"><i></i><span id="svcTag">Garage and home cleanouts</span></div>
+      </div>
+
+      <ol class="svc-list" id="svcList">
+        <li class="svc on">
+          <h3><button type="button" class="svc-tab" id="svc-t0" aria-expanded="true" aria-controls="svc-p0">
+            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-18 0) scale(.58)"><use href="#it-boxStack"/></g><g transform="translate(22 0) scale(.5)"><use href="#it-bike"/></g></svg>
+            <span>Garage and home cleanouts</span></button></h3>
+          <div class="svc-panel" id="svc-p0" role="region" aria-labelledby="svc-t0"><div class="svc-panel-in">
+            <p>Garages, attics, basements, sheds and spare rooms. We carry it out and haul it away.</p>
+            <ul class="svc-chips"><li>Boxes and bins</li><li>Bikes</li><li>Old mattresses</li><li>Storage</li></ul>
+            <a class="btn btn-primary" href="#quote" data-service="garage">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div></div>
+          <i class="svc-prog" aria-hidden="true"></i>
+        </li>
+        <li class="svc">
+          <h3><button type="button" class="svc-tab" id="svc-t1" aria-expanded="false" aria-controls="svc-p1">
+            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-14 0) scale(.46)"><use href="#it-couch"/></g><g transform="translate(32 0) scale(.4)"><use href="#it-fridge"/></g></svg>
+            <span>Furniture and appliances</span></button></h3>
+          <div class="svc-panel" id="svc-p1" role="region" aria-labelledby="svc-t1"><div class="svc-panel-in">
+            <p>Couches, mattresses, fridges, TVs and exercise equipment. From inside the house or from the curb.</p>
+            <ul class="svc-chips"><li>Couches</li><li>Mattresses</li><li>Refrigerators</li><li>TVs</li></ul>
+            <a class="btn btn-primary" href="#quote" data-service="furniture">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div></div>
+          <i class="svc-prog" aria-hidden="true"></i>
+        </li>
+        <li class="svc">
+          <h3><button type="button" class="svc-tab" id="svc-t2" aria-expanded="false" aria-controls="svc-p2">
+            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-12 0) scale(.42)"><use href="#it-lumber"/></g><g transform="translate(30 0) scale(.66)"><use href="#it-bags"/></g></svg>
+            <span>Construction cleanup</span></button></h3>
+          <div class="svc-panel" id="svc-p2" role="region" aria-labelledby="svc-t2"><div class="svc-panel-in">
+            <p>Drywall, lumber, tile, cabinets and demo debris from remodels and builds.</p>
+            <ul class="svc-chips"><li>Drywall</li><li>Lumber</li><li>Cabinets</li><li>Debris bags</li></ul>
+            <a class="btn btn-primary" href="#quote" data-service="construction">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div></div>
+          <i class="svc-prog" aria-hidden="true"></i>
+        </li>
+        <li class="svc">
+          <h3><button type="button" class="svc-tab" id="svc-t3" aria-expanded="false" aria-controls="svc-p3">
+            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-20 0) scale(.5)"><use href="#it-desk"/></g><g transform="translate(14 0) scale(.55)"><use href="#it-chair"/></g><g transform="translate(40 0) scale(.55)"><use href="#it-filing"/></g></svg>
+            <span>Commercial and property</span></button></h3>
+          <div class="svc-panel" id="svc-p3" role="region" aria-labelledby="svc-t3"><div class="svc-panel-in">
+            <p>Offices, storefronts, apartment turnovers and vacant units. One-time or recurring.</p>
+            <ul class="svc-chips"><li>Desks and chairs</li><li>File cabinets</li><li>Monitors</li><li>Turnovers</li></ul>
+            <a class="btn btn-primary" href="#quote" data-service="commercial">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div></div>
+          <i class="svc-prog" aria-hidden="true"></i>
+        </li>
+        <li class="svc">
+          <h3><button type="button" class="svc-tab" id="svc-t4" aria-expanded="false" aria-controls="svc-p4">
+            <svg class="svc-ico" viewBox="-52 -54 104 58" aria-hidden="true"><g transform="translate(-22 0) scale(.52)"><use href="#it-dresser"/></g><g transform="translate(18 0) scale(.52)"><use href="#it-armchair"/></g></svg>
+            <span>Estate and move-out</span></button></h3>
+          <div class="svc-panel" id="svc-p4" role="region" aria-labelledby="svc-t4"><div class="svc-panel-in">
+            <p>Full-house cleanouts for estates, sales and move-outs, on your timeline.</p>
+            <ul class="svc-chips"><li>Dressers</li><li>Armchairs</li><li>Lamps and frames</li><li>Whole homes</li></ul>
+            <a class="btn btn-primary" href="#quote" data-service="estate">Get a quote for this <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div></div>
+          <i class="svc-prog" aria-hidden="true"></i>
+        </li>
+      </ol>
+    </div>
+    </div>
+
+    <aside class="svc-help" data-reveal>
+      <svg class="svc-help-marks" viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg>
+      <div>
+        <h3>Not sure what to call it?</h3>
+        <p>Send us a photo or give us a call. We'll tell you what we can take and what it costs.</p>
+      </div>
+      <div class="svc-help-actions">
+        <a class="btn btn-primary" href="#quote" data-service="general">Send a photo</a>
+        <a class="btn btn-ghost" href="tel:+17020000000"><svg aria-hidden="true"><use href="#i-phone"/></svg>(702) 000-0000</a>
+      </div>
+    </aside>
+    <p class="svc-note" data-reveal>For safety and legal reasons we can't haul hazardous materials such as paint, chemicals, asbestos, medical waste or propane tanks. Not sure about something? Ask us before the day.</p>
+  </div>
+</section>
+
+<section class="sheet sheet--night how" id="how" data-tone="night" aria-labelledby="how-h">
+  <div class="wrap">
+    <header class="how-head">
+      <h2 class="h2" id="how-h" data-reveal>How it works.</h2>
+      <p class="lede" data-reveal style="--d:.08s">Three steps, and the only one you do is the first.</p>
+    </header>
+
+    <div class="route" id="route">
+      <svg class="road" id="routeRoad" aria-hidden="true" focusable="false"></svg>
+      <ol class="steps2">
+        <li class="step" data-i="0">
+          <div class="step-copy">
+            <span class="step-n" aria-hidden="true">1</span>
+            <h3>Tell us what's going</h3>
+            <p>Send a few details and a photo, or give us a call. It takes a couple of minutes.</p>
+            <a class="step-link" href="#quote" data-service="general">Start your quote <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="step-art">
+            <div class="vgn v1" aria-hidden="true">
+              <div class="phone"><div class="screen">
+                <svg class="vf" viewBox="0 0 240 300" preserveAspectRatio="xMidYMid slice"><use href="#pileArt"/></svg>
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <span class="flash"></span><b class="shutter"></b>
+              </div></div>
+              <div class="thread">
+                <div class="bub out b-photo"><svg viewBox="20 130 200 130"><use href="#pileArt"/></svg></div>
+                <div class="slot"><div class="bub out b-dots"><i></i><i></i><i></i></div>
+                <div class="bub out b-text">Garage cleanout. About ten boxes and two mattresses.</div></div>
+                <div class="sent"><svg><use href="#i-check"/></svg>Sent</div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="step" data-i="1">
+          <div class="step-copy">
+            <span class="step-n" aria-hidden="true">2</span>
+            <h3>Get your price</h3>
+            <p>We reply with a price. You approve it before we start, so there are no surprises.</p>
+            <a class="step-link" href="#faq">How pricing works <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="step-art">
+            <div class="vgn v2" aria-hidden="true">
+              <div class="chat">
+                <div class="bub in b-hi">Hi Dana, here's your price for the garage cleanout.</div>
+                <div class="pcard">
+                  <div class="pc-top"><span>Your price</span><em>Placeholder</em></div>
+                  <div class="pc-amt">$&bull;&bull;&bull;</div>
+                  <ul><li>All lifting and loading</li><li>Haul-away and disposal</li><li>Nothing starts until you approve</li></ul>
+                  <div class="pc-btns"><span class="pc-approve"><b>Approve</b><b class="done"><svg><use href="#i-check"/></svg>Approved</b><span class="tap"></span></span><span class="pc-ask">Ask a question</span></div>
+                </div>
+                <div class="bub in b-conf">Booked. We'll see you Tuesday morning.</div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="step" data-i="2">
+          <div class="step-copy">
+            <span class="step-n" aria-hidden="true">3</span>
+            <h3>We haul it away</h3>
+            <p>Our crew arrives, does all the lifting, and takes everything with us. You don't lift a thing.</p>
+            <a class="step-link" href="#proof">See the difference <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="step-art">
+            <div class="vgn v3" aria-hidden="true"><svg id="crewSvg" viewBox="0 0 560 340" focusable="false"></svg></div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="sheet sheet--day proof" id="proof" data-tone="day" aria-labelledby="proof-h">
+  <div class="wrap">
+    <header class="svc-head">
+      <h2 class="h2" id="proof-h" data-reveal>See the difference.</h2>
+      <p class="lede" data-reveal style="--d:.08s">A packed garage on one side, a clear floor on the other. Drag to compare.</p>
+    </header>
+
+    <figure class="ba-wrap" data-reveal style="--d:.1s">
+      <div class="ba" id="ba" style="--p:50">
+        <div class="ba-layer ba-after" id="baAfter"></div>
+        <div class="ba-layer ba-before" id="baBefore"></div>
+        <span class="ba-tag t-before">Before</span><span class="ba-tag t-after">After</span>
+        <span class="ba-ph">Placeholder art</span>
+        <div class="ba-line"><button type="button" class="ba-grip" id="baGrip" role="slider" aria-label="Compare before and after" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+        <span class="ba-hint" aria-hidden="true">Drag to compare</span>
+      </div>
+      <figcaption>Garage cleanout, one visit. Real before-and-after photos from our jobs will go here.</figcaption>
+    </figure>
+
+    <ul class="promises">
+      <li data-reveal>
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 24 L24 8 H40 V24 L24 40Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="32" cy="16" r="3" fill="#e8803f"/><path d="M19 27 l4 4 8-9" fill="none" stroke="#e8803f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>Price before we lift</h3><p>You approve the price first. Nothing starts until you say yes.</p>
+      </li>
+      <li data-reveal style="--d:.07s">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="12" y="22" width="24" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 28 H36" stroke="currentColor" stroke-width="2.6"/><path d="M24 17 V6 M18 11 l6 -6 6 6" fill="none" stroke="#e8803f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>We do the lifting</h3><p>Our crew carries everything out and loads the truck. You don't lift a thing.</p>
+      </li>
+      <li data-reveal style="--d:.14s">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 20 a12 12 0 0 1 20 -4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M34 28 a12 12 0 0 1 -20 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M36 9 v8 h-8" fill="none" stroke="#e8803f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 39 v-8 h8" fill="none" stroke="#e8803f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>Donated and recycled</h3><p>Usable furniture and clean materials go to donation and recycling where we can.</p>
+      </li>
+      <li data-reveal style="--d:.21s">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="14" y="6" width="20" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M21 36 H27" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M19 17 h10 M19 23 h7" stroke="#e8803f" stroke-width="3" stroke-linecap="round"/></svg>
+        <h3>Easy to reach</h3><p>Call, text or send photos. A real person answers.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="sheet sheet--night reviews-sec" id="reviews" data-tone="night" aria-labelledby="rv-h">
+  <div class="wrap">
+    <div class="reviews" data-reveal>
+      <div class="rv-head">
+        <h2 class="rv-title" id="rv-h">What neighbors say.</h2>
+        <span class="rv-ph">Placeholder reviews, to be replaced with real ones</span>
+      </div>
+      <div class="rv-grid">
+        <figure class="rv rv-lead">
+          <svg class="stars" viewBox="0 0 120 22" aria-label="5 out of 5 stars"><path id="stp" d="M11 1.5l2.9 6.2 6.7.8-5 4.6 1.4 6.7L11 16.4l-6 3.4 1.4-6.7-5-4.6 6.7-.8z" fill="#f4a561"/><use href="#stp" x="24"/><use href="#stp" x="48"/><use href="#stp" x="72"/><use href="#stp" x="96"/></svg>
+          <blockquote>They showed up, did all the lifting, and the garage has never looked this good. Price was exactly what they said.</blockquote>
+          <figcaption><b>Customer name</b><span>Henderson</span></figcaption>
+        </figure>
+        <figure class="rv">
+          <svg class="stars" viewBox="0 0 120 22" aria-label="5 out of 5 stars"><use href="#stp"/><use href="#stp" x="24"/><use href="#stp" x="48"/><use href="#stp" x="72"/><use href="#stp" x="96"/></svg>
+          <blockquote>I sent two photos and had a price in minutes. No surprises when they arrived.</blockquote>
+          <figcaption><b>Customer name</b><span>Summerlin</span></figcaption>
+        </figure>
+        <figure class="rv">
+          <svg class="stars" viewBox="0 0 120 22" aria-label="5 out of 5 stars"><use href="#stp"/><use href="#stp" x="24"/><use href="#stp" x="48"/><use href="#stp" x="72"/><use href="#stp" x="96"/></svg>
+          <blockquote>A full estate cleanout, handled without any fuss. Respectful and fast.</blockquote>
+          <figcaption><b>Customer name</b><span>Las Vegas</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="sheet sheet--day faq-sec" id="faq" data-tone="day" aria-labelledby="faq-h">
+  <div class="wrap faq-grid">
+    <div class="faq-side">
+      <h2 class="h2" id="faq-h" data-reveal>Questions, answered.</h2>
+      <p class="lede" data-reveal style="--d:.08s">The things people ask before they book. Anything missing, ask us directly.</p>
+      <aside class="faq-help" data-reveal style="--d:.14s">
+        <h3>Still have a question?</h3>
+        <p>Call or text and a real person answers.</p>
+        <a class="faq-phone" href="tel:+17020000000">(702) 000-0000</a>
+        <div class="faq-help-actions"><a class="btn btn-primary" href="#quote" data-service="general">Send a message</a></div>
+      </aside>
+    </div>
+
+    <div class="faq-main" data-reveal style="--d:.1s">
+      <div class="faq-filter" role="group" aria-label="Filter questions">
+        <button type="button" class="on" data-f="all">All</button>
+        <button type="button" data-f="price">Pricing</button>
+        <button type="button" data-f="when">Scheduling</button>
+        <button type="button" data-f="take">What we take</button>
+      </div>
+      <ul class="faq-list" id="faqList">
+        <li class="qa on" data-c="price">
+          <h3><button type="button" id="q-0" aria-expanded="true" aria-controls="a-0"><span>How does pricing work?</span><i aria-hidden="true"></i></button></h3>
+          <div class="qa-a" id="a-0" role="region" aria-labelledby="q-0"><div><p>You tell us what's going, by photo or on a quick call. We reply with a price, and you approve it before we lift anything.</p></div></div>
+        </li>
+        <li class="qa" data-c="when">
+          <h3><button type="button" id="q-1" aria-expanded="false" aria-controls="a-1"><span>Do I need to be home?</span><i aria-hidden="true"></i></button></h3>
+          <div class="qa-a" id="a-1" role="region" aria-labelledby="q-1"><div><p>Not always. For garage, curbside or outdoor pickups you can leave it to us. Tell us where everything is and we'll confirm the plan.</p></div></div>
+        </li>
+        <li class="qa" data-c="take">
+          <h3><button type="button" id="q-2" aria-expanded="false" aria-controls="a-2"><span>What can't you take?</span><i aria-hidden="true"></i></button></h3>
+          <div class="qa-a" id="a-2" role="region" aria-labelledby="q-2"><div><p>Hazardous materials such as paint, chemicals, asbestos, medical waste and propane tanks. If you're unsure about an item, ask us first.</p></div></div>
+        </li>
+        <li class="qa" data-c="when">
+          <h3><button type="button" id="q-3" aria-expanded="false" aria-controls="a-3"><span>Can you come the same day?</span><i aria-hidden="true"></i></button></h3>
+          <div class="qa-a" id="a-3" role="region" aria-labelledby="q-3"><div><p>Often, when there's room in the schedule. Send your request early in the day or give us a call.</p></div></div>
+        </li>
+        <li class="qa" data-c="take">
+          <h3><button type="button" id="q-4" aria-expanded="false" aria-controls="a-4"><span>Do you donate or recycle?</span><i aria-hidden="true"></i></button></h3>
+          <div class="qa-a" id="a-4" role="region" aria-labelledby="q-4"><div><p>We try to. Usable furniture and clean materials go to donation and recycling where possible. Ask us about your load.</p></div></div>
+        </li>
+        <li class="qa" data-c="price">
+          <h3><button type="button" id="q-5" aria-expanded="false" aria-controls="a-5"><span>How do I pay?</span><i aria-hidden="true"></i></button></h3>
+          <div class="qa-a" id="a-5" role="region" aria-labelledby="q-5"><div><p>We'll confirm accepted payment methods when we send your price.</p></div></div>
+        </li>
+        <li class="qa" data-c="take">
+          <h3><button type="button" id="q-6" aria-expanded="false" aria-controls="a-6"><span>How big a job can you handle?</span><i aria-hidden="true"></i></button></h3>
+          <div class="qa-a" id="a-6" role="region" aria-labelledby="q-6"><div><p>From a single couch to a whole house. Tell us what you have and we'll send the right crew and truck for it.</p></div></div>
+        </li>
+        <li class="qa" data-c="when">
+          <h3><button type="button" id="q-7" aria-expanded="false" aria-controls="a-7"><span>Do you work with property managers and businesses?</span><i aria-hidden="true"></i></button></h3>
+          <div class="qa-a" id="a-7" role="region" aria-labelledby="q-7"><div><p>Yes. Offices, storefronts, apartment turnovers and vacant units, one time or on a recurring schedule. Tell us what you manage and we'll set it up.</p></div></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"How does pricing work?","acceptedAnswer":{"@type":"Answer","text":"You tell us what's going, by photo or on a quick call. We reply with a price, and you approve it before we lift anything."}},
+    {"@type":"Question","name":"Do I need to be home?","acceptedAnswer":{"@type":"Answer","text":"Not always. For garage, curbside or outdoor pickups you can leave it to us. Tell us where everything is and we'll confirm the plan."}},
+    {"@type":"Question","name":"What can't you take?","acceptedAnswer":{"@type":"Answer","text":"Hazardous materials such as paint, chemicals, asbestos, medical waste and propane tanks. If you're unsure about an item, ask us first."}},
+    {"@type":"Question","name":"Can you come the same day?","acceptedAnswer":{"@type":"Answer","text":"Often, when there's room in the schedule. Send your request early in the day or give us a call."}},
+    {"@type":"Question","name":"Do you donate or recycle?","acceptedAnswer":{"@type":"Answer","text":"We try to. Usable furniture and clean materials go to donation and recycling where possible."}},
+    {"@type":"Question","name":"How do I pay?","acceptedAnswer":{"@type":"Answer","text":"We'll confirm accepted payment methods when we send your price."}}
+  ]}</script>
+</section>
+
+<section class="sheet sheet--night finale" id="finale" data-tone="night" aria-labelledby="fin-h">
+  <div class="wrap fin-copy">
+    <h2 class="fin-h" id="fin-h" data-reveal>Your space, back.</h2>
+    <p class="fin-lede" data-reveal style="--d:.08s">Tell us what needs to go. We'll send the price, then the crew.</p>
+    <div class="fin-actions" data-reveal style="--d:.14s">
+      <a class="btn btn-primary" href="#quote" data-service="general">Get my free quote <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a class="btn btn-ghost" href="tel:+17020000000"><svg aria-hidden="true"><use href="#i-phone"/></svg>(702) 000-0000</a>
+    </div>
+    <p class="fin-biz" data-reveal style="--d:.2s">Property manager or business owner? <a href="#quote" data-service="commercial">Ask about recurring pickups</a></p>
+  </div>
+
+  <div class="fin-scene" id="finScene" aria-hidden="true">
+    <svg class="fin-sky" id="finSky" viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax slice" focusable="false"></svg>
+    <svg class="fin-truck" id="finTruck" viewBox="-40 -340 840 360" focusable="false"></svg>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Swift Junk Removal, back to top"><svg viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-dark"/></svg><span class="brand-text"><span class="brand-name">SWIFT</span><span class="brand-sub">JUNK REMOVAL</span></span></a>
+        <p>Junk removal and cleanouts across Las Vegas and Henderson.</p>
+        <a class="foot-phone" href="tel:+17020000000">(702) 000-0000</a>
+        <a class="foot-mail" href="mailto:hello@example.com">hello@example.com</a>
+      </div>
+      <nav class="foot-cols" aria-label="Footer">
+        <div>
+          <h4>Services</h4>
+          <ul>
+            <li><a href="#quote" data-service="garage">Garage and home</a></li>
+            <li><a href="#quote" data-service="furniture">Furniture and appliances</a></li>
+            <li><a href="#quote" data-service="construction">Construction cleanup</a></li>
+            <li><a href="#quote" data-service="commercial">Commercial and property</a></li>
+            <li><a href="#quote" data-service="estate">Estate and move-out</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Explore</h4>
+          <ul>
+            <li><a href="#services">What we remove</a></li>
+            <li><a href="#how">How it works</a></li>
+            <li><a href="#proof">Before and after</a></li>
+            <li><a href="#faq">Questions</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get started</h4>
+          <ul>
+            <li><a href="#quote" data-service="general">Get a free quote</a></li>
+            <li><a href="tel:+17020000000">Call us</a></li>
+            <li><a href="mailto:hello@example.com">Email us</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <div class="foot-bottom">
+      <p>&copy; 2026 Swift Junk Removal. All rights reserved.</p>
+      <a class="to-top" href="#top">Back to top <span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+    </div>
+  </div>
+  <div class="foot-mark" aria-hidden="true">SWIFT</div>
+</footer>
+
+<script src="js/core.js"></script>
+<script src="js/items.js"></script>
+<script src="js/landmarks.js"></script>
+<script src="js/bg.js"></script>
+<script src="js/world.js"></script>
+<script src="js/truck.js"></script>
+<script src="js/trailer.js"></script>
+<script src="js/hero-world.js"></script>
+<script src="js/human.js"></script>
+<script src="js/crew.js"></script>
+<script src="js/splash.js"></script>
+<script src="js/ride.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/quote.js"></script>
+<script src="js/services.js"></script>
+<script src="js/how.js"></script>
+<script src="js/proof.js"></script>
+<script src="js/faq.js"></script>
+<script src="js/finale.js"></script>
+<script src="js/page.js"></script>
+</body>
+</html>

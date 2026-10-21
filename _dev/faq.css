@@ -1,0 +1,45 @@
+/* ============================================================================
+   FAQ: a sticky help card beside a filterable, smoothly opening list
+   ========================================================================== */
+.faq-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+.faq-side { position: sticky; top: 104px; }
+.faq-side .h2 { max-width: 9ch; }
+.faq-side .lede { max-width: 32ch; }
+.faq-help { margin-top: 32px; padding: 26px 26px 24px; border-radius: 26px; background: var(--navy-900); color: var(--ice-dim); background-image: radial-gradient(60% 90% at 100% 0%, rgba(232, 128, 63, .22), transparent 70%); }
+.faq-help h3 { margin: 0; font: 800 1.45rem/1.1 var(--display); letter-spacing: -.02em; color: #fff; }
+.faq-help p { margin: 8px 0 0; font: 400 15.5px/1.5 var(--body); color: var(--ice-dim); }
+.faq-phone { display: inline-block; margin: 14px 0 16px; font: 800 clamp(1.7rem, 2.6vw, 2.1rem)/1 var(--display); letter-spacing: -.02em; color: #fff; text-decoration: none; transition: color .2s; }
+.faq-phone:hover { color: var(--copper-300); }
+.faq-help .btn { min-height: 48px; }
+
+.faq-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.faq-filter button { min-height: 42px; padding: 0 18px; border-radius: 999px; cursor: pointer; background: transparent; border: 1.5px solid var(--paper-3); color: var(--ink-2); font: 600 14.5px/1 var(--body); transition: all .22s var(--ease); }
+.faq-filter button:hover { border-color: var(--ink-3); }
+.faq-filter button.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.faq-list { margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+.qa { border-bottom: 1px solid var(--rule); }
+.qa[hidden] { display: none; }
+.qa h3 { margin: 0; }
+.qa button { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; padding: 24px 4px; background: none; border: 0; cursor: pointer; text-align: left; font: 700 clamp(1.15rem, 1.8vw, 1.5rem)/1.22 var(--display); letter-spacing: -.02em; color: var(--ink); transition: color .25s, padding .3s var(--ease); }
+.qa button:hover { color: var(--copper-ink); padding-left: 10px; }
+.qa i { position: relative; flex: none; width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--ink); transition: background .3s, border-color .3s, transform .5s var(--ease-out); }
+.qa i::before, .qa i::after { content: ""; position: absolute; left: 50%; top: 50%; width: 16px; height: 2px; margin: -1px 0 0 -8px; border-radius: 2px; background: var(--ink); transition: background .3s, transform .4s var(--ease-out); }
+.qa i::after { transform: rotate(90deg); }
+.qa.on i { background: var(--copper-500); border-color: var(--copper-500); transform: rotate(180deg); }
+.qa.on i::before, .qa.on i::after { background: #0b1220; }
+.qa.on i::after { transform: rotate(0deg); }
+.qa-a { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows .55s var(--ease-out), visibility 0s linear .55s; }
+.qa.on .qa-a { grid-template-rows: 1fr; visibility: visible; transition-delay: 0s; }
+.qa-a > div { min-height: 0; overflow: hidden; }
+.qa-a p { margin: 0 0 26px; padding-right: 64px; max-width: 58ch; font: 400 17px/1.6 var(--body); color: var(--fg-2); }
+
+@media (max-width: 900px) {
+  .faq-grid { grid-template-columns: minmax(0, 1fr); }
+  .faq-side { position: static; }
+  .faq-side .h2 { max-width: 12ch; }
+  .qa-a p { padding-right: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qa-a, .qa i, .qa i::before, .qa i::after { transition: none; }
+}
+

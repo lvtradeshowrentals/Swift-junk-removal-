@@ -1,0 +1,47 @@
+<section class="sheet sheet--night areas" id="areas" data-tone="night" aria-labelledby="areas-h">
+  <div class="wrap areas-grid">
+    <div class="ar-copy">
+      <h2 class="h2" id="areas-h" data-reveal>Serving Las Vegas and Henderson.</h2>
+      <p class="lede" data-reveal style="--d:.08s">If you're in the valley, we can get to you. Outside these areas? Call and ask.</p>
+
+      <form class="zipcheck" id="zipCheck" novalidate data-reveal style="--d:.14s">
+        <label for="ar-zip">Check your ZIP</label>
+        <div class="zc-row">
+          <input id="ar-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="89101">
+          <a class="btn btn-primary" href="#quote" data-service="general">Get a quote</a>
+        </div>
+        <p class="zc-result" id="zcResult" aria-live="polite">Type your ZIP and we'll light up your part of the valley.</p>
+      </form>
+
+      <div class="ar-lists" data-reveal style="--d:.2s">
+        <div>
+          <h3>Las Vegas</h3>
+          <ul>
+            <li><button type="button" data-a="downtown">Downtown</button></li>
+            <li><button type="button" data-a="summerlin">Summerlin</button></li>
+            <li><button type="button" data-a="centennial">Centennial Hills</button></li>
+            <li><button type="button" data-a="southwest">Southwest Las Vegas</button></li>
+            <li><button type="button" data-a="strip">The Strip corridor</button></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Henderson</h3>
+          <ul>
+            <li><button type="button" data-a="greenvalley">Green Valley</button></li>
+            <li><button type="button" data-a="anthem">Anthem</button></li>
+            <li><button type="button" data-a="sevenhills">Seven Hills</button></li>
+            <li><button type="button" data-a="inspirada">Inspirada</button></li>
+            <li><button type="button" data-a="dthenderson">Downtown Henderson</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <figure class="map-card" id="mapCard" data-reveal style="--d:.1s">
+      <svg id="valleySvg" viewBox="0 0 1000 900" role="img" aria-label="Illustrated map of the Las Vegas valley showing our service area from Summerlin in the west to Henderson in the southeast" focusable="false"></svg>
+      <div class="mp-pins" id="mapPins"></div>
+      <div class="mp-detail" id="mapDetail" aria-live="polite"><b>The whole valley</b><span>Pick a neighborhood or enter a ZIP.</span></div>
+      <figcaption class="mp-note">Illustrative map. Service area to be confirmed.</figcaption>
+    </figure>
+  </div>
+</section>

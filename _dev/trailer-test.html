@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><title>trailer</title>
+<style>body{margin:0;background:#c9d6ea;font:12px sans-serif}svg.s{display:block;width:1500px;height:auto}</style></head><body>
+<svg id="sprite" width="0" height="0" style="position:absolute"><defs id="spriteDefs"></defs>
+<symbol id="mark-dark" viewBox="0 0 172 108"><path d="M0 0H30L64 54L30 108H0L34 54Z" fill="#7a4630"/><path d="M54 0H84L118 54L84 108H54L88 54Z" fill="#c4632d"/><path d="M108 0H138L172 54L138 108H108L142 54Z" fill="#eef1fa"/></symbol>
+<symbol id="mark-light" viewBox="0 0 172 108"><path d="M0 0H30L64 54L30 108H0L34 54Z" fill="#f6d3bd"/><path d="M54 0H84L118 54L84 108H54L88 54Z" fill="#e99a63"/><path d="M108 0H138L172 54L138 108H108L142 54Z" fill="#0f1a33"/></symbol></svg>
+<div id="g"></div>
+<script src="../js/core.js"></script><script src="../js/items.js"></script><script src="../js/truck.js"></script><script src="../js/trailer.js"></script>
+<script>
+document.getElementById('spriteDefs').innerHTML = SW.defs() + SW.truck.defs() + SW.trailer.defs() + SW.itemDefs();
+const q = new URLSearchParams(location.search), net = q.get('net') !== '0';
+const strip = (s) => s.replace(/ id="[^"]*"/g, '');
+let load = '';
+SW.trailer.LOAD.forEach((it) => { load += `<use href="#it-${it.t}" transform="${SW.trailer.tf(it)}"/>`; });
+const n = SW.trailer.net();
+const netSvg = net ? `<clipPath id="nc"><path d="${n.d}"/></clipPath><g clip-path="url(#nc)"><path d="${n.d}" fill="#0d1120" opacity=".18"/><path d="${n.d}" fill="url(#trMesh)" opacity=".75"/></g><path d="${n.top}" fill="none" stroke="#0d1120" stroke-width="3"/>` : '';
+const truck = strip(SW.truck.markup().replace('<g id="bedItems"></g>', ''));
+document.getElementById('g').innerHTML = `<svg class="s" viewBox="-720 -380 1560 400">
+<rect x="-720" y="-380" width="1560" height="400" fill="#dfe8f5"/><rect x="-720" y="0" width="1560" height="30" fill="#b9b2a5"/>
+<g>${SW.trailer.back()}</g><g>${load}</g><g>${SW.trailer.front()}</g>${netSvg}
+<g>${truck}</g></svg>`;
+</script></body></html>

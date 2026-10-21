@@ -1,0 +1,120 @@
+<section class="sheet sheet--night quote" id="quote" data-tone="night" aria-labelledby="quote-h">
+  <div class="wrap quote-grid">
+    <div class="q-copy">
+      <h2 class="h2" id="quote-h" data-reveal>Tell us what needs to go.</h2>
+      <p class="lede" data-reveal style="--d:.08s">Send a few details, and a photo if you have one. We'll reply with your price before we lift anything.</p>
+
+      <figure class="loader" id="loader" data-reveal style="--d:.16s">
+        <div class="loader-stage"><svg id="loadSvg" aria-hidden="true" focusable="false"></svg></div>
+        <figcaption><span class="loader-dot" aria-hidden="true"></span><span id="loadCap" aria-live="polite">Pick what's going and we'll load the truck.</span></figcaption>
+      </figure>
+
+      <ul class="checks" data-reveal style="--d:.22s">
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg>Free quote, no obligation</li>
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg>You approve the price before we start</li>
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg>We do all the lifting and loading</li>
+      </ul>
+      <div class="contact-lines" data-reveal style="--d:.28s">
+        <span>Prefer to talk? Call <a href="tel:+17020000000">(702) 000-0000</a></span>
+        <span>Or email <a href="mailto:hello@example.com">hello@example.com</a></span>
+      </div>
+    </div>
+
+    <div class="wo-wrap" id="formCard">
+      <div class="wo-shell" id="woShell">
+        <form class="wo" id="quoteForm" novalidate>
+          <header class="wo-head m-b">
+            <div class="wo-id">
+              <svg viewBox="0 0 172 108" aria-hidden="true"><use href="#mark-light"/></svg>
+              <div><b>Work order</b><span>Swift Junk Removal</span></div>
+            </div>
+            <dl class="wo-meta">
+              <div><dt>No.</dt><dd id="woNo">SW-0000-0000</dd></div>
+              <div><dt>Date</dt><dd id="woDate">Today</dd></div>
+            </dl>
+          </header>
+
+          <div class="wo-body m-tb">
+            <ol class="wo-steps" id="woSteps" aria-label="Request progress">
+              <li class="on"><button type="button" data-s="1"><i>1</i><span>What</span></button></li>
+              <li><button type="button" data-s="2" disabled><i>2</i><span>Where and when</span></button></li>
+              <li><button type="button" data-s="3" disabled><i>3</i><span>You</span></button></li>
+            </ol>
+
+            <div class="wo-panes">
+              <div class="pane on" data-step="1" role="group" aria-labelledby="h-s1">
+                <h3 id="h-s1" tabindex="-1">What's going?</h3>
+                <p class="pane-sub">Pick everything that applies.</p>
+                <div class="tiles">
+                  <label class="tile"><input type="checkbox" name="service" value="garage"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-40 0) scale(.95)"><use href="#it-boxStack"/></g><g transform="translate(34 0) scale(.88)"><use href="#it-bike"/></g></svg><b>Garage or home</b><small>Boxes, bikes, storage</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="furniture"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-26 0) scale(.62)"><use href="#it-couch"/></g><g transform="translate(46 0) scale(.6)"><use href="#it-fridge"/></g></svg><b>Furniture and appliances</b><small>Couches, mattresses, fridges</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="construction"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-24 0) scale(.62)"><use href="#it-lumber"/></g><g transform="translate(52 0) scale(.9)"><use href="#it-bags"/></g></svg><b>Construction debris</b><small>Lumber, drywall, tile</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="commercial"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-34 0) scale(.78)"><use href="#it-desk"/></g><g transform="translate(26 0) scale(.82)"><use href="#it-chair"/></g><g transform="translate(66 0) scale(.78)"><use href="#it-filing"/></g></svg><b>Office or property</b><small>Desks, turnovers, vacant units</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile"><input type="checkbox" name="service" value="estate"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-44 0) scale(.78)"><use href="#it-dresser"/></g><g transform="translate(18 0) scale(.78)"><use href="#it-armchair"/></g><g transform="translate(66 0) scale(.82)"><use href="#it-lamp"/></g></svg><b>Estate or move-out</b><small>Whole-house cleanouts</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                  <label class="tile tile-open"><input type="checkbox" name="service" value="general"><svg class="tile-art" viewBox="-90 -80 180 84" aria-hidden="true"><ellipse cx="0" cy="2" rx="78" ry="4" fill="#0b1220" opacity=".1"/><g transform="translate(-16 0)"><rect x="-26" y="-50" width="52" height="50" rx="3" fill="#e9eef8" stroke="#c4cee3" stroke-width="1.5"/><text x="0" y="-14" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="40" fill="#e8803f">?</text></g><g transform="translate(40 0) scale(.55)"><use href="#it-box"/></g></svg><b>Not sure yet</b><small>Send a photo, we'll tell you</small><span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span></label>
+                </div>
+                <p class="err" id="e-service" role="alert"></p>
+              </div>
+
+              <div class="pane" data-step="2" role="group" aria-labelledby="h-s2" inert>
+                <h3 id="h-s2" tabindex="-1">Where and when?</h3>
+                <p class="pane-sub">So we can send the right crew at the right time.</p>
+                <div class="field zip-field"><label for="f-zip">ZIP code</label><input id="f-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="89101" required>
+                  <p class="zip-note" id="zipNote" aria-live="polite"></p><span class="err" id="e-zip" role="alert"></span></div>
+                <fieldset class="field when-field"><legend>When do you need us?</legend>
+                  <div class="chips">
+                    <label class="chip"><input type="radio" name="when" value="today"><span>Today</span></label>
+                    <label class="chip"><input type="radio" name="when" value="tomorrow"><span>Tomorrow</span></label>
+                    <label class="chip"><input type="radio" name="when" value="week"><span>This week</span></label>
+                    <label class="chip"><input type="radio" name="when" value="flexible" checked><span>I'm flexible</span></label>
+                  </div></fieldset>
+                <div class="field"><label for="f-details">Anything we should know? <span class="hint">(optional)</span></label><textarea id="f-details" name="details" placeholder="A couch, two mattresses and about ten boxes from the garage. Stairs, gate code, parking."></textarea></div>
+              </div>
+
+              <div class="pane" data-step="3" role="group" aria-labelledby="h-s3" inert>
+                <h3 id="h-s3" tabindex="-1">Who should we text?</h3>
+                <p class="pane-sub">We'll reply with your price. You approve it before we lift anything.</p>
+                <div class="who-grid">
+                  <div class="field"><label for="f-name">Your name</label><input id="f-name" name="name" type="text" autocomplete="name" required><span class="err" id="e-name" role="alert"></span></div>
+                  <div class="field"><label for="f-phone">Mobile number</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(702) 000-0000" required><span class="err" id="e-phone" role="alert"></span></div>
+                </div>
+                <div class="field"><span class="label-like">Photos <span class="hint">(optional, but they help us price faster)</span></span>
+                  <label class="drop" id="drop" for="f-photos"><svg aria-hidden="true"><use href="#i-camera"/></svg><span id="dropLabel"><b>Add photos</b> or drop them here</span><input id="f-photos" name="photos" type="file" accept="image/*" multiple></label>
+                  <ul class="thumbs" id="thumbs" aria-label="Photos added"></ul></div>
+              </div>
+            </div>
+          </div>
+
+          <footer class="wo-stub m-t">
+            <dl class="wo-sum">
+              <div><dt>Service</dt><i class="lead"></i><dd id="sumSvc" class="empty">Not picked yet</dd></div>
+              <div><dt>Where</dt><i class="lead"></i><dd id="sumZip" class="empty">ZIP needed</dd></div>
+              <div><dt>When</dt><i class="lead"></i><dd id="sumWhen">I'm flexible</dd></div>
+              <div><dt>Price</dt><i class="lead"></i><dd class="ok">Confirmed before we lift</dd></div>
+            </dl>
+            <div class="wo-actions">
+              <button type="button" class="wo-back" id="woBack" hidden>Back</button>
+              <button type="button" class="btn btn-primary" id="woNext">Next: where and when <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
+            <p class="wo-fine" id="woFine">Takes about a minute. Nothing is sent until the last step.</p>
+            <div class="barcode" id="barcode" aria-hidden="true"></div>
+          </footer>
+        </form>
+
+        <div class="wo-done" id="success" role="status" tabindex="-1">
+          <div class="stamp" aria-hidden="true">Received</div>
+          <h3>We've got your request.</h3>
+          <p class="done-lede">A real person reads every one. We'll text you with your price, and you approve it before we lift anything.</p>
+          <ol class="next-list">
+            <li><i>1</i><span><b>We review</b>Your details and photos, usually within the hour.</span></li>
+            <li><i>2</i><span><b>You get a price</b>By text or call. No surprises on the day.</span></li>
+            <li><i>3</i><span><b>We haul it away</b>The crew does all the lifting and loading.</span></li>
+          </ol>
+          <p class="done-ref">Reference <b id="doneNo">SW-0000-0000</b></p>
+          <p class="demo-note" id="demoNote">Preview only: this form isn't connected to an inbox yet, so nothing was sent.</p>
+          <button type="button" class="wo-again" id="woAgain">Add another job</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

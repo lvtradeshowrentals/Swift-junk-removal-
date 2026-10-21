@@ -1,0 +1,51 @@
+/* ============================================================================
+   FINALE and FOOTER: the closing night, the Strip, the truck driving off
+   ========================================================================== */
+.finale { overflow: hidden; padding-bottom: 0; background-color: #070b16; background-image: radial-gradient(50% 60% at 50% 30%, rgba(232, 128, 63, .10), transparent 70%); }
+.fin-copy { text-align: center; }
+.fin-h { margin: 0 auto; max-width: 9ch; font: 800 clamp(3.4rem, 11vw, 9.5rem)/.88 var(--display); letter-spacing: -.05em; color: #fff; text-wrap: balance; }
+.fin-lede { margin: 26px auto 0; max-width: 34ch; font: 400 clamp(1.1rem, 1.7vw, 1.4rem)/1.5 var(--body); color: var(--ice-dim); text-wrap: balance; }
+.fin-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 34px; }
+.fin-actions .btn { min-height: 58px; padding: 0 30px; font-size: 17px; }
+.fin-actions .btn svg { width: 19px; height: 19px; }
+.fin-biz { margin: 26px 0 0; font: 400 15.5px/1.5 var(--body); color: var(--ice-mute); }
+.fin-biz a { color: var(--copper-300); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(244, 177, 132, .4); }
+.fin-biz a:hover { color: #fff; text-decoration-color: #fff; }
+
+.fin-scene { --p: 0; position: relative; margin-top: clamp(44px, 7vw, 96px); aspect-ratio: 1600 / 420; min-height: 240px; }
+.fin-sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.fin-truck { position: absolute; bottom: 1%; left: calc(10% + var(--p) * 96%); width: 25%; min-width: 190px; height: auto; overflow: visible; will-change: left; }
+.fin-truck .wheel-spin { transform-box: fill-box; transform-origin: center; transform: rotate(calc(var(--p) * 1900deg)); }
+
+.foot { position: relative; overflow: hidden; background: #05080f; padding-top: clamp(40px, 6vw, 72px); }
+.foot-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: clamp(32px, 6vw, 96px); padding-bottom: clamp(36px, 5vw, 64px); }
+.foot-brand p { margin: 18px 0 0; max-width: 32ch; font: 400 16px/1.55 var(--body); color: var(--ice-mute); }
+.foot-phone { display: block; margin-top: 22px; font: 800 clamp(1.7rem, 3vw, 2.3rem)/1 var(--display); letter-spacing: -.025em; color: #fff; text-decoration: none; transition: color .2s; }
+.foot-phone:hover { color: var(--copper-300); }
+.foot-mail { display: inline-block; margin-top: 10px; font: 500 16px/1.4 var(--body); color: var(--ice-dim); text-decoration: none; }
+.foot-mail:hover { color: #fff; }
+.foot-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.foot-cols h4 { margin: 0 0 16px; font: 600 13px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--copper-300); }
+.foot-cols ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.foot-cols a { display: inline-block; padding: 6px 0; font: 500 16px/1.3 var(--body); color: var(--ice-dim); text-decoration: none; transition: color .2s, transform .25s var(--ease); }
+.foot-cols a:hover { color: #fff; transform: translateX(4px); }
+.foot-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 22px 0 28px; border-top: 1px solid var(--line); }
+.foot-bottom p { margin: 0; font: 400 14px/1.4 var(--body); color: var(--ice-mute); }
+.to-top { display: inline-flex; align-items: center; gap: 12px; font: 600 14.5px/1 var(--body); color: var(--ice-dim); text-decoration: none; transition: color .2s; }
+.to-top span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid rgba(238, 241, 250, .26); transition: background .25s, border-color .25s, transform .3s var(--spring); }
+.to-top svg { width: 18px; height: 18px; }
+.to-top:hover { color: #fff; }
+.to-top:hover span { background: var(--copper-500); border-color: var(--copper-500); color: #0b1220; transform: translateY(-3px); }
+.foot-mark { margin-top: -.06em; padding-bottom: 0; text-align: center; font: 800 clamp(8rem, 27vw, 27rem)/.74 var(--display); letter-spacing: -.04em; color: transparent; -webkit-text-stroke: 1.5px rgba(238, 241, 250, .11); user-select: none; white-space: nowrap; height: .5em; overflow: hidden; pointer-events: none; }
+.foot-top, .foot-bottom { position: relative; z-index: 1; }
+
+@media (max-width: 900px) {
+  .foot-top { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .foot-cols { grid-template-columns: 1fr 1fr; }
+  .foot-cols > div:last-child { grid-column: 1 / -1; }
+  .fin-actions .btn { flex: 1 1 100%; }
+  .fin-scene { min-height: 190px; }
+}
+

@@ -1,0 +1,11 @@
+# dev screenshots and scratch builds are large and regenerable
+_dev/shots/
+_dev/artifact-test.html
+_dev/index.before*.html
+_dev/index.v1.html
+_dev/*.before*.js
+_dev/ride.old.js
+_dev/v1/
+_dev/*.txt
+node_modules/
+.claude/settings.local.json

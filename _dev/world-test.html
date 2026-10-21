@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8"><title>world</title>
+<style>body{margin:0;background:#222;font:12px sans-serif}svg.s{display:block;width:1500px;height:auto}</style></head><body>
+<svg id="sprite" width="0" height="0" style="position:absolute"><defs id="spriteDefs"></defs>
+<symbol id="mark-dark" viewBox="0 0 172 108"><path d="M0 0H30L64 54L30 108H0L34 54Z" fill="#7a4630"/><path d="M54 0H84L118 54L84 108H54L88 54Z" fill="#c4632d"/><path d="M108 0H138L172 54L138 108H108L142 54Z" fill="#eef1fa"/></symbol></svg>
+<div id="g"></div>
+<script src="../js/core.js"></script><script src="../js/items.js"></script><script src="../js/world.js"></script><script src="../js/hero-world.js"></script>
+<script>
+document.getElementById('spriteDefs').innerHTML = SW.defs() + SW.itemDefs();
+const q = new URLSearchParams(location.search);
+const x0 = +(q.get('x') || -300), w = +(q.get('w') || 1500);
+const segs = SW.world.buildHero();
+let body = '', lights = '';
+segs.forEach((s) => { body += s.svg; lights += s.lights; });
+const sky = '<defs><linearGradient id="tsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26295a"/><stop offset=".6" stop-color="#b85d58"/><stop offset="1" stop-color="#f8bb83"/></linearGradient></defs>';
+document.getElementById('g').innerHTML = `<svg class="s" viewBox="${x0} 0 ${w} 520">${sky}<rect x="${x0}" y="0" width="${w}" height="520" fill="url(#tsky)"/>${body}</svg>`;
+</script></body></html>

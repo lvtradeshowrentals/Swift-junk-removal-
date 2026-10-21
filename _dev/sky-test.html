@@ -1,0 +1,11 @@
+<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#222}svg{display:block}</style></head><body>
+<svg id="sprite" width="0" height="0" style="position:absolute"><defs id="d"></defs></svg><div id="g"></div>
+<script src="../js/core.js"></script><script src="../js/items.js"></script><script src="../js/landmarks.js"></script>
+<script>
+SW.bg = {}; 
+document.getElementById('d').innerHTML = SW.defs();
+const names = ['strat','sphere','highRoller','wynn','palazzo','venetian','paris','bellagio','cosmopolitan','mirage','caesars','nyny','mgmGrand','luxor','mandalay','fontainebleau','treasure','flamingo'];
+let x = 40, s = '';
+names.forEach((n) => { const b = SW.LV[n](); s += `<g transform="translate(${x} 700)">${b.s}</g><text x="${x}" y="730" fill="#fff" font-size="12">${n}</text>`; x += 130; });
+document.getElementById('g').innerHTML = `<svg width="${x}" height="760" viewBox="0 0 ${x} 760"><rect width="${x}" height="760" fill="#c9b7d8"/>${s}</svg>`;
+</script></body></html>

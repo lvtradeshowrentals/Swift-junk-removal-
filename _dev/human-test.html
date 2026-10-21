@@ -1,0 +1,66 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>human rig test</title>
+<style>body{margin:0;background:#c9cfe0}svg{display:block}</style></head>
+<body>
+<svg id="s" width="1500" height="640" viewBox="0 0 1500 640" xmlns="http://www.w3.org/2000/svg"><defs id="d"></defs><rect width="1500" height="640" fill="#b9c2da"/><rect y="520" width="1500" height="120" fill="#6d7694"/></svg>
+<script src="../js/core.js"></script>
+<script src="../js/items.js"></script>
+<script src="../js/human.js"></script>
+<script>
+(function () {
+  const SW = window.SW, V = SW.human.v, basis = SW.human.basis, R = Math.PI / 180;
+  const svg = document.getElementById('s'), defs = document.getElementById('d');
+  const figs = [];
+  function standing(yaw, ex) {
+    const pb = basis(yaw, 0);
+    const P = [0, 95, 0];
+    const feet = [0, 1].map((i) => ({ a: V.comb([0, 8, 0], pb.L, (i ? -1 : 1) * 9.6), pitch: 0, yaw }));
+    return Object.assign({ pelvis: P, pelvisYaw: yaw, trunkYaw: yaw, trunkPitch: 0, headYaw: yaw, headPitch: 0, feet,
+      arms: [{ flex: 4, elbow: 10, abd: 5 }, { flex: -3, elbow: 10, abd: 5 }] }, ex || {});
+  }
+  /* a mid-stride frame: left foot forward heel strike, right foot trailing at toe-off */
+  function stride(yaw) {
+    const pb = basis(yaw, 0), lat = 8.5;
+    const P = V.comb([0, 90.5, 0], pb.F, 0);
+    const fL = { a: V.comb([0, 10.5, 0], pb.F, 40, pb.L, lat), pitch: 14 * R, yaw };
+    const fR = { a: V.comb([0, 22, 0], pb.F, -38, pb.L, -lat), pitch: -48 * R, yaw };
+    return { pelvis: P, pelvisYaw: yaw + 4 * R, trunkYaw: yaw - 5 * R, trunkPitch: 3 * R, headYaw: yaw, headPitch: 0, feet: [fL, fR],
+      arms: [{ flex: -24, elbow: 22, abd: 4 }, { flex: 26, elbow: 34, abd: 4 }] };
+  }
+  function squat(yaw) {
+    const pb = basis(yaw, 0);
+    const P = V.comb([0, 58, 0], pb.F, -14);
+    const feet = [0, 1].map((i) => ({ a: V.comb([0, 8, 0], pb.F, i ? -4 : 6, pb.L, (i ? -1 : 1) * 16), pitch: 0, yaw }));
+    const tgt = [0, 1].map((i) => V.comb([0, 22, 0], pb.F, 26, pb.L, (i ? -1 : 1) * 17));
+    return { pelvis: P, pelvisYaw: yaw, trunkYaw: yaw, trunkPitch: 52 * R, headYaw: yaw, headPitch: -22 * R, feet, arms: [{ target: tgt[0] }, { target: tgt[1] }] };
+  }
+  function hoist(yaw) {
+    const pb = basis(yaw, 0);
+    const P = [0, 95, 0];
+    const feet = [0, 1].map((i) => ({ a: V.comb([0, 8, 0], pb.L, (i ? -1 : 1) * 12, pb.F, i ? -6 : 8), pitch: 0, yaw }));
+    const tgt = [0, 1].map((i) => V.comb([0, 168, 0], pb.F, 22, pb.L, (i ? -1 : 1) * 14));
+    return { pelvis: P, pelvisYaw: yaw, trunkYaw: yaw, trunkPitch: -4 * R, headYaw: yaw, headPitch: 14 * R, feet, arms: [{ target: tgt[0] }, { target: tgt[1] }] };
+  }
+  const cases = [
+    ['side', standing(0)], ['3/4 front', standing(35 * R)], ['front 70', standing(62 * R)], ['front', standing(90 * R)], ['back', standing(-90 * R)],
+    ['stride', stride(0)], ['stride 3/4', stride(40 * R)], ['squat', squat(0)], ['squat 3/4', squat(40 * R)], ['hoist', hoist(0)],
+  ];
+  const q = new URLSearchParams(location.search); const pick = (q.get('c') || '').split(',').filter(Boolean).map(Number);
+  const scale = +(q.get('s') || 1.55), cols = pick.length ? pick.length : 5, vw = +(q.get('w') || 300), vh = +(q.get('h') || 320), gy = +(q.get('g') || 295);
+  const list = pick.length ? pick.map((k) => cases[k]) : cases;
+  list.forEach((c, i) => {
+    const rig = SW.human.create(SW.CREW_LOOK[(+(q.get('look')||0)+i) % SW.CREW_LOOK.length]);
+    const col = i % cols, row = Math.floor(i / cols);
+    const wrap = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    wrap.setAttribute('transform', `translate(${vw / 2 + col * vw} ${row * vh + gy}) scale(${scale})`);
+    wrap.appendChild(rig.g); svg.appendChild(wrap);
+    rig.draw(c[1]);
+    (q.get('hide') || '').split(',').filter(Boolean).forEach((n) => { [0, 1].forEach((k) => { [rig.legs[k][n], rig.arms[k][n]].forEach((e) => { if (e) e.style.display = 'none'; }); }); });
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', vw / 2 + col * vw); t.setAttribute('y', row * vh + gy + 17); t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', 14); t.textContent = c[0];
+    svg.appendChild(t);
+  });
+  defs.innerHTML = SW.human.defs();
+  window.__done = true;
+})();
+</script></body></html>

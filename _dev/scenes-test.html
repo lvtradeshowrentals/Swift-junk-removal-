@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><title>scenes</title>
+<style>body{margin:0;background:#f5f8fd;font:12px sans-serif}.g{display:grid;grid-template-columns:repeat(2,780px);gap:10px;padding:10px}.g div{position:relative}svg.s{width:780px;height:663px;display:block;border-radius:24px}.it-pop{}h4{margin:0 0 4px}</style></head><body>
+<svg id="sprite" width="0" height="0" style="position:absolute"><defs id="spriteDefs"></defs>
+<symbol id="mark-dark" viewBox="0 0 172 108"><path d="M0 0H30L64 54L30 108H0L34 54Z" fill="#7a4630"/><path d="M54 0H84L118 54L84 108H54L88 54Z" fill="#c4632d"/><path d="M108 0H138L172 54L138 108H108L142 54Z" fill="#eef1fa"/></symbol><symbol id="mark-light" viewBox="0 0 172 108"><path d="M0 0H30L64 54L30 108H0L34 54Z" fill="#f6d3bd"/><path d="M54 0H84L118 54L84 108H54L88 54Z" fill="#e99a63"/><path d="M108 0H138L172 54L138 108H108L142 54Z" fill="#0f1a33"/></symbol></svg>
+<div class="g" id="g"></div>
+<script src="../js/core.js"></script><script src="../js/items.js"></script><script src="../js/truck.js"></script><script src="../js/scenes.js"></script>
+<script>
+const defs = SW.defs() + SW.truck.defs() + SW.scenes.defs() + SW.itemDefs();
+document.getElementById('spriteDefs').innerHTML = defs;
+const only = (location.search.match(/only=(\w+)/)||[])[1];
+let h = '';
+Object.keys(SW.scenes.build).forEach(k => { if (only && only !== k) return; h += '<div><h4>'+k+'</h4><svg class="s" viewBox="0 0 800 680">' + SW.scenes.build[k]() + '</svg></div>'; });
+document.getElementById('g').innerHTML = h;
+</script></body></html>
