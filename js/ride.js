@@ -93,9 +93,13 @@
     if (p >= d.p1) return L.camFinal;
     return lerp(L.cam0, L.camFinal, easeInOut((p - d.p0) / (d.p1 - d.p0)));
   }
+  /* time of day as ONE smooth curve over the whole run: a cubic Hermite through (0, dawn), (.4, full daylight) and (1, warm afternoon), at rest at both ends and
+     always moving in between. (Easing each keyframe to a stop made the sun lurch, then stall.) */
+  const PH = [[0, 0, 0], [.55, .385, .36], [1, .5, 0]];
   function phaseAt(p) {
-    for (let i = 1; i < keys.length; i++) if (p <= keys[i][0]) { const a = keys[i - 1], b = keys[i]; return lerp(a[1], b[1], smooth(a[0], b[0], p)); }
-    return 1;
+    p = clamp(p, 0, 1);
+    const k = p < PH[1][0] ? 0 : 1, a = PH[k], b = PH[k + 1], h = b[0] - a[0], t = (p - a[0]) / h, t2 = t * t, t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * a[1] + (t3 - 2 * t2 + t) * h * a[2] + (-2 * t3 + 3 * t2) * b[1] + (t3 - t2) * h * b[2];
   }
   /* the camera: 0 = wide, 1 = close. It pushes in as the crew steps out and pulls back as the rig prepares to leave. */
   /* smootherstep: zero velocity AND zero acceleration at both ends, so a camera move starts and stops without a visible kick */
@@ -246,7 +250,7 @@
   }
   function sunState(ph) {
     const up = clamp(ph / .86, 0, 1);
-    return { x: lerp(960, 640, up), y: up < .5 ? lerp(548, 150, easeOut(up / .5)) : lerp(150, 612, Math.pow((up - .5) / .5, 1.6)), vis: 1 - smooth(.8, .88, ph) };
+    return { x: lerp(960, 640, up), y: up < .5 ? lerp(548, 150, Math.sin(Math.PI / 2 * up / .5)) : lerp(150, 612, Math.pow((up - .5) / .5, 1.6)), vis: 1 - smooth(.8, .88, ph) };
   }
   function updateSky(ph) {
     let i = 0; const at = SW.SKY_AT;
@@ -658,6 +662,11 @@
     /* a scrollbar drag or a jump link can still move the page; hold it at the top while the scene plays */
     window.addEventListener('scroll', () => { if (mode === 'playing' && window.pageYOffset > 0) window.scrollTo(0, 0); if (mode === 'idle' && window.pageYOffset > 24 && window.pageYOffset < stage.clientHeight) start(); }, { passive: true });
     if (mode === 'idle') arm();
+    /* a link that jumps to another part of the page (the nav, a Get a quote button) skips the show instead of being pulled back to the top by it */
+    document.addEventListener('click', (e) => {
+      const l = e.target.closest && e.target.closest('a[href^="#"]');
+      if (l && l.id !== 'skip' && mode !== 'done' && l.getAttribute('href') !== '#top') finish();
+    }, true);
     const skip = $('skip');
     skip.addEventListener('click', (e) => { if (mode === 'playing') { e.preventDefault(); finish(); } });
     const rp = $('replay'); if (rp) rp.addEventListener('click', replay);
@@ -694,11 +703,14 @@
     if (reduce) { setMode('idle'); ps = 0; render(0, 0); return; }
     ps = deep ? 1 : 0; setMode(deep ? 'done' : 'idle'); render(ps, 0); setCue();
     wireIntent();
+    /* once the hero has scrolled well away, stop painting it: its layers are the biggest thing on the page and phones reclaim the memory */
+    if ('IntersectionObserver' in window) new IntersectionObserver((es) => es.forEach((e) => { stage.style.visibility = e.isIntersecting ? '' : 'hidden'; }), { rootMargin: '30% 0px 30% 0px' }).observe(stage);
     let rt = 0, lw = innerWidth, lh = innerHeight;
     window.addEventListener('resize', () => {
       clearTimeout(rt);
       rt = setTimeout(() => {
-        if (Math.abs(innerWidth - lw) < 2 && Math.abs(innerHeight - lh) < 140) { applyLayout(); setTrackHeight(); render(ps, 0); return; }
+        /* only a real change of shape (a rotation, a resized window) rebuilds the scene; a browser bar sliding in or out just re-fits it */
+        if (Math.abs(innerWidth - lw) < 2 && Math.abs(innerHeight - lh) < .3 * lh) { applyLayout(); setTrackHeight(); render(ps, 0); return; }
         lw = innerWidth; lh = innerHeight; cache = {}; followSm = null;
         const t = mode === 'playing' ? (performance.now() - t0) : 0;
         setup(false);

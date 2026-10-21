@@ -68,8 +68,19 @@
         scenes.forEach((s, j) => { s.classList.toggle('on', j === p); s.classList.remove('in'); });
         stage.classList.remove('wiping');
       }
-      function show(i, instant) {
+      let softT = 0;
+      function soft(i) {
+        settle(); clearTimeout(softT);
+        const prev = cur; cur = i; rowState(i);
+        const next = scenes[i];
+        next.classList.add('on', 'soft', 'pop', 'fadein');
+        pinsEl.innerHTML = ''; setPins(i, .02);
+        softT = setTimeout(() => { scenes.forEach((s2, j) => { if (j !== cur) s2.classList.remove('on', 'pop', 'soft', 'fadein'); }); scenes[cur].classList.remove('fadein'); }, 380);
+        void prev;
+      }
+      function show(i, instant, quiet) {
         if (i === cur && started) return;
+        if (quiet && started && !reduce) { soft(i); return; }
         settle();
         cur = i;
         rowState(i);
@@ -99,16 +110,21 @@
       }
 
       /* scroll drives it: the pinned showroom opens category 1, then 2 (closing 1), and so on; scrolling up reverses it */
-      function layout() {
+      let lockW = 0, lockH = 0;
+      function layout(force) {
         if (!pinned) { track.style.height = ''; track.classList.remove('is-pinned'); return; }
+        const w = innerWidth, h = innerHeight;
+        if (!force && lockW === w && Math.abs(h - lockH) < 160) return;
+        lockW = w; lockH = h;
         track.classList.add('is-pinned');
-        track.style.height = `calc(100svh + ${(N - 1) * STEP * 100}svh)`;
+        track.style.height = Math.round(h + (N - 1) * STEP * h) + 'px';
       }
       function onScroll() {
         if (!pinned || !started) return;
-        const r = track.getBoundingClientRect(), span = (N - 1) * STEP * innerHeight, p = Math.min(1, Math.max(0, -r.top / Math.max(1, span)));
-        const i = Math.min(N - 1, Math.round(p * (N - 1) + 1e-6));
-        if (i !== cur) show(i);
+        const r = track.getBoundingClientRect(), span = (N - 1) * STEP * lockH, p = Math.min(1, Math.max(0, -r.top / Math.max(1, span)));
+        /* a dead band either side of each boundary stops the category flipping back and forth while the page rests on the line */
+        const f = p * (N - 1), i = Math.abs(f - cur) > .62 ? Math.min(N - 1, Math.max(0, Math.round(f))) : cur;
+        if (i !== cur) show(i, false, true);
       }
       let q = false;
       const queue = () => { if (!q) { q = true; requestAnimationFrame(() => { q = false; onScroll(); }); } };
@@ -117,7 +133,7 @@
         t.addEventListener('click', () => {
           if (pinned) {
             /* jump to the scroll position that opens this category */
-            const r = track.getBoundingClientRect(), span = (N - 1) * STEP * innerHeight;
+            const r = track.getBoundingClientRect(), span = (N - 1) * STEP * lockH;
             const y = window.pageYOffset + r.top + (i / (N - 1)) * span + 2 - (i === 0 ? 0 : 0);
             window.scrollTo({ top: i === 0 ? Math.max(0, window.pageYOffset + r.top) : y, behavior: 'smooth' });
           } else {
@@ -131,8 +147,8 @@
           if (d) { e.preventDefault(); tabs[(i + d + tabs.length) % tabs.length].focus(); }
         });
       });
-      layout();
-      window.addEventListener('resize', () => { layout(); queue(); if (pinsEl.firstChild) { clearTimeout(rz); rz = setTimeout(() => setPins(cur, 0), 150); } });
+      layout(true);
+      window.addEventListener('resize', () => { layout(); queue(); });
       window.addEventListener('scroll', queue, { passive: true });
 
       /* nothing plays until the showroom is on screen, so the first pile drops in front of the visitor */

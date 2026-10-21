@@ -279,10 +279,14 @@ html.anim .wo-shell.in { clip-path: inset(-60px -60px -90px -60px); transform: n
 .stage-card { --x: -30; order: 2; position: relative; justify-self: end; width: 100%; max-width: min(calc((100svh - 128px) * 800 / 680), 760px); aspect-ratio: 800 / 680; border-radius: 32px; overflow: hidden; isolation: isolate; container-type: size; background: #cfe1f3; box-shadow: 0 44px 80px -44px rgba(11, 18, 32, .6), 0 0 0 1px rgba(11, 18, 32, .07); }
 @property --x { syntax: '<number>'; inherits: true; initial-value: -30; }
 .scenes { position: absolute; inset: 0; }
-.scene { position: absolute; inset: 0; visibility: hidden; }
+.scene { position: absolute; inset: 0; display: none; }
 .scene svg { display: block; width: 100%; height: 100%; }
-.scene.on { visibility: visible; }
-.scene.in { visibility: visible; z-index: 2; clip-path: polygon(0 0, calc(var(--x) * 1%) 0, calc(var(--x) * 1% + 16%) 50%, calc(var(--x) * 1%) 100%, 0 100%); }
+.scene.on { display: block; }
+.scene.fadein { z-index: 2; animation: sceneFade .34s ease both; }
+@keyframes sceneFade { from { opacity: 0; } to { opacity: 1; } }
+/* a scroll-driven change shows the finished scene: nothing drops in again */
+.scene.soft .it-pop, .scene.soft .it-sh { animation: none !important; opacity: 1 !important; }
+.scene.in { display: block; z-index: 2; clip-path: polygon(0 0, calc(var(--x) * 1%) 0, calc(var(--x) * 1% + 16%) 50%, calc(var(--x) * 1%) 100%, 0 100%); }
 .stage-card.wiping { animation: svcWipe .95s cubic-bezier(.65, 0, .35, 1) both; }
 @keyframes svcWipe { from { --x: -24; } to { --x: 122; } }
 .wipe-chev { position: absolute; z-index: 3; top: 0; bottom: 0; width: 34%; left: calc(var(--x) * 1% + 16% - 34%); pointer-events: none; opacity: 0; filter: drop-shadow(0 0 10px rgba(232, 128, 63, .55)); }
