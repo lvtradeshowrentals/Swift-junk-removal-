@@ -57,14 +57,28 @@
       fn.push(nf);
       feet.push({ fwd, lat: (i ? -1 : 1) * W, y: groundY(p) + lift, pitch: p, yaw });
     }
-    /* pelvis height: the stance legs stay just short of straight. A leg's say in it fades in as the heel strikes and out as the toe lifts, so the
-       height glides instead of snapping when the support passes from one foot to the other. */
-    let py = 0;
-    for (let i = 0; i < 2; i++) {
-      const f = feet[i], c = fract(th / TAU + i * .5);
-      const need = f.y + Math.sqrt(Math.max(1200, LEG * LEG - f.fwd * f.fwd - Math.pow(Math.abs(f.lat) - 9.2, 2)));
-      const w = amp > .02 ? (c < .6 ? 1 - sm((c - .5) / .12) : sm((c - .9) / .1)) : 1;
-      py = Math.max(py, lerp(70, need, w));
+    /* pelvis height. Each stance leg wants the hip a little under full leg length; a leg's say fades in as the heel strikes and out as the
+       toe lifts. Taken raw, the two legs hand over with a sharp V at every step, which reads as bobbing, so the height is averaged over about
+       a quarter of a gait cycle (the cusps round off) and then eased toward a steady hover: the hips glide along a few centimetres up and down. */
+    const hipAt = (t) => {
+      let m = 0;
+      for (let i = 0; i < 2; i++) {
+        const c = fract(t / TAU + i * .5), nf = fwdOf(c), p = pitchOf(c) * R * Math.min(1, amp * 1.4);
+        const fwd = nf * S / 2 + b * (i ? -4 : 6), fy = groundY(p) + liftOf(c) * amp;
+        const need = fy + Math.sqrt(Math.max(1200, LEG * LEG - fwd * fwd - Math.pow(W - 9.2, 2)));
+        const w = c < .6 ? 1 - sm((c - .5) / .12) : sm((c - .9) / .1);
+        m = Math.max(m, lerp(70, need, w));
+      }
+      return m;
+    };
+    const STAND = 93.8;
+    let py = STAND;
+    if (amp > .02) {
+      const win = TAU * .11, k = [1, 2, 3, 2, 1];
+      let sum = 0;
+      for (let j = 0; j < 5; j++) sum += hipAt(th + (j - 2) * win / 2) * k[j];
+      const avg = sum / 9, hover = STAND - 7 - (sk - 1) * 7;
+      py = lerp(STAND, lerp(hover, Math.min(avg, STAND), .42), sm(clamp(amp / .4, 0, 1)));
     }
     py = clamp(py || 93, 84 - (sk - 1) * 26, 95);    /* a long stride is a lower, driving posture */
     py = lerp(py, 56, b);

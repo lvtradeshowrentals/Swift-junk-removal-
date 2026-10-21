@@ -197,12 +197,10 @@
   .rail li { list-style: none; }
 
   /* ---------- splash intro ---------- */
-  .splash, .splash-skip, .wipe { display: none; }
+  .splash, .wipe { display: none; }
   .splash-on:not(.splash-over) { overflow: hidden; }
   .splash-on:not(.splash-over) .splash { display: grid; place-items: center; position: fixed; inset: 0; z-index: 100; background: #fff; }
   .splash-on:not(.splash-over) .wipe { display: block; position: fixed; inset: 0; width: 100%; height: 100%; z-index: 101; pointer-events: none; filter: drop-shadow(0 0 14px rgba(232,128,63,.55)); }
-  .splash-on:not(.splash-over) .splash-skip { display: inline-flex; position: fixed; z-index: 102; right: max(var(--gutter), env(safe-area-inset-right, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; cursor: pointer; font: 600 14px/1 var(--body); color: var(--navy-900); background: rgba(255,255,255,.9); border: 1.5px solid rgba(15,26,51,.25); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-  .splash-skip:hover { border-color: var(--copper-500); }
   .sp-lock { display: flex; align-items: center; gap: clamp(14px, 2.6vw, 36px); padding-inline: 20px; }
   .sp-mark { width: clamp(72px, 13vw, 176px); height: auto; display: block; overflow: visible; }
   .sp-rule { width: 2px; align-self: stretch; margin-block: 6%; background: linear-gradient(#e8803f, rgba(232,128,63,.25)); transform-origin: center; }
@@ -328,7 +326,6 @@
   <polyline id="wc1" fill="none" stroke="#c4632d" stroke-width="6" stroke-linejoin="miter"/>
   <polyline id="wc0" fill="none" stroke="#f08a4b" stroke-width="7" stroke-linejoin="miter"/>
 </svg>
-<button class="splash-skip" id="splashSkip" type="button">Skip intro</button>
 
 <header class="nav">
   <a class="brand" href="#top" aria-label="Swift Junk Removal, home">

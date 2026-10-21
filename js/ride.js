@@ -326,6 +326,9 @@
     const landOf = [];
 
     /* generic segments for one person */
+    /* how much gait a walking segment shows: it eases in and out over the first and last fifth, and a very short hop barely steps at all,
+       so the hips never jump from standing to full stride and back inside a few frames */
+    const gaitEnv = (u, dur) => { const e = clamp(.16 / dur, .3, .5); return smooth(0, e, u) * (1 - smooth(1 - e, 1, u)) * clamp((dur - .1) / .35, 0, 1); };
     const walk = (c, P0, P1, dur, o) => {
       o = o || {};
       const left = P1.x < P0.x, th0 = (o.th || 0) + c * 1.3, back = !!o.back, fade = !entered[c], sk = o.stride || 1.55; entered[c] = true;
@@ -334,7 +337,7 @@
         const w = { x, y, s }, d = depthAngle(P1.y - P0.y, P1.x - P0.x);
         const yaw = o.yaw != null ? o.yaw : (left ? PI - d : d);
         const st = { x, y, s, vis: o.vis ? o.vis(u) : fade ? clamp(u * 7, 0, 1) : 1, carry: o.carry || '', pair: o.pair != null ? o.pair : -1, rot: o.rot || 0, sc: o.sc || 1,
-          o: { yaw, theta: (back ? -1 : 1) * SW.crew.phase(cmd(P0, w), sk) + th0, amp: Math.pow(Math.sin(PI * u), .55), effort: o.effort || 0, stride: sk } };
+          o: { yaw, theta: (back ? -1 : 1) * SW.crew.phase(cmd(P0, w), sk) + th0, amp: gaitEnv(u, dur), effort: o.effort || 0, stride: sk } };
         if (o.carry || o.pair != null && o.pair >= 0) Object.assign(st.o, { carry: true, gy: o.gy, gf: GRIP, gl: 15, gm: 1, lean: o.pair >= 0 ? 0 : -8 });
         return st;
       } };
@@ -435,7 +438,7 @@
     };
     const holdTo = (c, tUntil, yaw) => { if (tUntil > clock[c] + .05) idle(c, at[c], tUntil - clock[c], yaw); };
     const throwPose = (u) => ({ carry: true, gy: lerp(70, 176, smooth(0, .3, u)) - 40 * smooth(.62, 1, u), gf: lerp(22, 46, smooth(.3, .62, u)), gl: 18, gm: 1, lean: -4, headPitch: 10, effort: .6 });
-    const kneel = (u) => ({ b: smooth(0, .2, u) * (1 - smooth(.8, 1, u)), carry: true, gy: 34, gf: 24, gl: 14, gm: .9, headPitch: 10, effort: .5 });
+    const kneel = (u) => ({ b: .82 * smooth(0, .46, u) * (1 - smooth(.54, 1, u)), carry: true, gy: 34, gf: 24, gl: 14, gm: .9, headPitch: 10, effort: .5 });
     const push = (u) => ({ carry: true, gy: lerp(60, 96, smooth(.2, .8, u)), gf: 30, gl: 16, gm: 1, lean: 4 * Math.sin(PI * u), effort: .5 });
     goTo(0, rearA, NET0 - .2); holdTo(0, NET0, .2); idle(0, rearA, .45, .2, throwPose); holdTo(0, RAMP0 - .1, .1); idle(0, rearA, .4, .1, push);
     goTo(1, rearB, NET0 - .2); holdTo(1, NET0, .26); idle(1, rearB, .45, .26, throwPose);

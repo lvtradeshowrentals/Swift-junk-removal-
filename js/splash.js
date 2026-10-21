@@ -60,7 +60,6 @@
   }
 
   SW.splash.start = function () {
-    $('splashSkip').addEventListener('click', finish);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') finish(); });
     setTimeout(finish, 9000);
     render(0);
