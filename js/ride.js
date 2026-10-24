@@ -601,9 +601,10 @@
   let cards = [];
   function updateUI(p) {
     const hold = parts.hold, fin = parts.finale;
-    const heroO = 1 - smooth(0, hold.p1 * .9, p);
+    /* the headline and buttons stay for nearly the whole run and hand over to the closing card as the rig drives off */
+    const dv = parts.drive, heroO = 1 - smooth(dv.p0 + (dv.p1 - dv.p0) * .4, dv.p0 + (dv.p1 - dv.p0) * .95, p);
     setIf($('heroCopy'), 'hero', heroO.toFixed(3), (e, v) => { e.style.setProperty('--hero', v); e.style.transform = `translate3d(0,${f(-(1 - v) * 26)}px,0)`; e.style.pointerEvents = v < .1 ? 'none' : ''; });
-    setIf(stage, 'riding', heroO < .98 ? 1 : 0, (e, v) => e.classList.toggle('riding', !!v));
+    setIf(stage, 'riding', p > .004 ? 1 : 0, (e, v) => e.classList.toggle('riding', !!v));
     setIf(stage, 'ended', p > .985 ? 1 : 0, (e, v) => e.classList.toggle('ended', !!v));
     setIf($('vig'), 'vig', heroO.toFixed(3), (e, v) => { e.style.opacity = v; });
     const on = p > fin.p0 + (fin.p1 - fin.p0) * .1 ? 1 : 0;
