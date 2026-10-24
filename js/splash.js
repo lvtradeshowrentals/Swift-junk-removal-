@@ -47,6 +47,7 @@
     if (SW.ride && SW.ride.setSplashOffset) SW.ride.setSplashOffset(0, 1);
     try { sessionStorage.setItem('swiftIntro', '1'); } catch (e) {}
     SW.splash.active = false;
+    if (SW.ride && SW.ride.start) SW.ride.start();   /* the scene begins the moment the intro lifts */
   }
 
   function loop() {
@@ -61,6 +62,9 @@
 
   SW.splash.start = function () {
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') finish(); });
+    /* the intro never holds the page: any scroll gesture lifts it */
+    ['wheel', 'touchmove'].forEach((ev) => window.addEventListener(ev, () => finish(), { passive: true }));
+    document.addEventListener('keydown', (e) => { if (['ArrowDown', 'PageDown', ' ', 'End'].indexOf(e.key) > -1) finish(); });
     setTimeout(finish, 9000);
     render(0);
     window.__splashSeek = (ms) => {

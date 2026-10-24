@@ -632,48 +632,24 @@
     if (mode !== 'idle' || reduce) return;
     if (SW.splash && SW.splash.active) return;
     setMode('playing'); t0 = performance.now(); setCue();
-    if (window.pageYOffset) window.scrollTo(0, 0);
     kick();
   }
   function finish() {
     if (mode === 'done') return;
     ps = 1; setMode('done'); disarm(); render(1, 0); setCue();
   }
-  function replay() { ps = 0; setMode('idle'); arm(); render(0, 0); start(); }
+  function replay() { ps = 0; setMode('idle'); render(0, 0); start(); }
   function setCue() {
     const c = $('cueText'); if (!c) return;
-    c.textContent = mode === 'done' ? 'Keep scrolling' : 'Scroll to watch';
+    c.textContent = 'Keep scrolling';
   }
   R.go = function () { finish(); };
   R.setSplashOffset = (off) => { splashOff = off; if (!running && L) render(ps, 0); };
 
-  /* the first scroll gesture starts the show; while it plays the page is held in place (no scroll-jacking beyond ~6 seconds, and Skip ends it) */
+  /* the show starts by itself as soon as the page is ready (after the intro splash, if there is one); the page is never held:
+     scrolling at any moment simply carries the visitor past the scene, which keeps playing on its own clock */
   function wireIntent() {
-    const block = (e) => { if (mode === 'playing' && e.cancelable) e.preventDefault(); };
-    let ty = null;
-    const onWheel = (e) => { if (mode === 'idle' && e.deltaY > 0 && !(SW.splash && SW.splash.active)) { e.preventDefault(); start(); } else block(e); };
-    const onTouchStart = (e) => { ty = e.touches[0].clientY; };
-    const onTouchMove = (e) => {
-      if (mode === 'idle' && ty !== null && ty - e.touches[0].clientY > 10 && !(SW.splash && SW.splash.active)) { if (e.cancelable) e.preventDefault(); start(); } else block(e);
-    };
-    /* the non-passive listeners only exist while the hero is waiting or playing, so normal scrolling stays on the fast path afterwards */
-    arm = () => { window.addEventListener('wheel', onWheel, { passive: false }); window.addEventListener('touchmove', onTouchMove, { passive: false }); };
-    disarm = () => { window.removeEventListener('wheel', onWheel); window.removeEventListener('touchmove', onTouchMove); };
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('keydown', (e) => {
-      if (/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test((e.target && e.target.tagName) || '')) return;
-      const down = ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'].indexOf(e.key) > -1;
-      if (mode === 'idle' && down && !(SW.splash && SW.splash.active)) { e.preventDefault(); start(); }
-      else if (mode === 'playing' && (down || e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'Home')) e.preventDefault();
-    });
-    /* a scrollbar drag or a jump link can still move the page; hold it at the top while the scene plays */
-    window.addEventListener('scroll', () => { if (mode === 'playing' && window.pageYOffset > 0) window.scrollTo(0, 0); if (mode === 'idle' && window.pageYOffset > 24 && window.pageYOffset < stage.clientHeight) start(); }, { passive: true });
-    if (mode === 'idle') arm();
-    /* a link that jumps to another part of the page (the nav, a Get a quote button) skips the show instead of being pulled back to the top by it */
-    document.addEventListener('click', (e) => {
-      const l = e.target.closest && e.target.closest('a[href^="#"]');
-      if (l && l.id !== 'skip' && mode !== 'done' && l.getAttribute('href') !== '#top') finish();
-    }, true);
+    arm = () => {}; disarm = () => {};
     const skip = $('skip');
     skip.addEventListener('click', (e) => { if (mode === 'playing') { e.preventDefault(); finish(); } });
     const rp = $('replay'); if (rp) rp.addEventListener('click', replay);
@@ -710,6 +686,7 @@
     if (reduce) { setMode('idle'); ps = 0; render(0, 0); return; }
     ps = deep ? 1 : 0; setMode(deep ? 'done' : 'idle'); render(ps, 0); setCue();
     wireIntent();
+    if (!(SW.splash && SW.splash.active) && mode === 'idle') start();   /* with no intro splash the scene begins at once; the splash starts it when it ends */
     /* once the hero has scrolled well away, stop painting it: its layers are the biggest thing on the page and phones reclaim the memory */
     if ('IntersectionObserver' in window) new IntersectionObserver((es) => es.forEach((e) => { stage.style.visibility = e.isIntersecting ? '' : 'hidden'; }), { rootMargin: '30% 0px 30% 0px' }).observe(stage);
     let rt = 0, lw = innerWidth, lh = innerHeight;
